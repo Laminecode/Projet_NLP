@@ -84,3 +84,6 @@ Ce document décrit clairement les responsabilités de chaque membre de l’équ
 ---
 
 
+
+**instructions**
+ * execute build_corpus.py file to scrap data from links
