@@ -1,3 +1,5 @@
 data/processed/
 data/raw/
-data/test_data/
+data/raw_text/
+data/test_data/ 
+src/__pycache__/
