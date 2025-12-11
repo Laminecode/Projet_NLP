@@ -6,7 +6,7 @@ from scrape_ukrain import (main_ukrain)
 from scrape_gaza import (main_gaza)
 
 RAW_BASE = "data/raw"
-OUT_BASE = "data/processed"
+OUT_BASE = "data/raw_text"
 
 os.makedirs(OUT_BASE, exist_ok=True)
 
