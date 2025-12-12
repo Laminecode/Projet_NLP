@@ -9,5 +9,7 @@ def clean_text(text):
     text = re.sub(r'http\S+|www\.\S+', '', text)
     text = re.sub(r'<.*?>', '', text)
     text = re.sub(r'\s+', ' ', text).strip()
+    #remove non-printable characters
+    text = ''.join(c for c in text if c.isprintable())
 
     return text

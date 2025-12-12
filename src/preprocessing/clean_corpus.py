@@ -7,7 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"
 from src.preprocessing.pipeline import preprocess_to_string
 
 RAW_TEXT_BASE = "data/raw_text"
-OUT_BASE = "data/processed"
+OUT_BASE = "data/processed_clean"
 
 os.makedirs(OUT_BASE, exist_ok=True)
 
