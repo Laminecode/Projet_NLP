@@ -2,4 +2,4 @@ data/processed_clean/
 data/raw/
 data/raw_text/
 data/test_data/ 
-src/__pycache__/
+results/

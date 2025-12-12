@@ -1,7 +1,9 @@
-# src/analysis/utils_load.py
+# src/lexicale_analysis/load_data.py
 from pathlib import Path
 from typing import Dict, Tuple, List
 import json
+import csv
+import os
 
 def load_corpus_texts(base_dir: str) -> Dict[str, Dict[str, str]]:
     """
@@ -20,7 +22,6 @@ def load_corpus_texts(base_dir: str) -> Dict[str, Dict[str, str]]:
                 try:
                     text = p.read_text(encoding="utf-8")
                 except Exception:
-                    # fallback: try latin-1 then decode
                     text = p.read_text(encoding="latin-1")
                 docs[doc_id] = text
         corpora[cat] = docs
@@ -31,5 +32,12 @@ def save_json(obj, path):
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(obj, ensure_ascii=False, indent=2), encoding="utf-8")
 
-
-save_json(load_corpus_texts("data/processed_clean/"), "data/analysis/corpus_texts.json")
+def save_csv_rows(path, fieldnames, rows):
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with p.open("w", encoding="utf-8", newline="") as f:
+        import csv
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for r in rows:
+            writer.writerow(r)
