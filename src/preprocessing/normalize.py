@@ -28,6 +28,8 @@ def tokenize_text(text):
 
 def remove_stopwords(tokens, language='english'):
     stop_words = set(stopwords.words(language))
+    extra_sw = {"say","says","said","also","include","report","reports","reported","news","media","one","two","new","first","last","year","years","people","percent","many","most","some","may","like","even","u","us","would","could","should","might","must"}
+    stop_words |= extra_sw
     return [word for word in tokens if word.lower() not in stop_words]
 
 def normalize_text(text, language='english'):

@@ -10,4 +10,5 @@ def preprocess_pipeline(text, language='english'):
 
 def preprocess_to_string(text, language='english'):
     tokens = preprocess_pipeline(text, language)
-    return " ".join(tokens)
+    tokens = [t for t in tokens if len(t) > 1 and not t.isdigit()]
+    return " ".join(tokens[:820])

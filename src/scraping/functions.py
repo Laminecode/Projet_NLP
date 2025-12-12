@@ -56,7 +56,7 @@ def extract_article(url, LINKS_FILE):
 
     content = "\n".join(paragraphs)
 
-    if len(content) < 200:
+    if len(content.split()) < 150:
         print(f"[WARNING] Content too short for {url}")
         remove_link_from_file(url, LINKS_FILE)
         return None

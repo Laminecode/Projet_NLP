@@ -11,10 +11,7 @@ https://www.statista.com/statistics/1296924/ukraine-war-casualties-daily/
 https://ukraine.un.org/en/253322-civilian-deaths-ukraine-war-top-10000-un-says
 https://www.oxfam.org/en/press-releases/ukraine-42-civilian-causalities-every-day-two-years-war
 https://www.nrc.no/news/2024/september/ukraine-summer-saw-highest-civilian-casualties-since-2022
-https://www.kyivpost.com/post/49863
 https://www.wsws.org/en/articles/2024/02/26/nrdz-f26.html
-https://www.wsws.org/en/articles/2025/04/01/urxz-a01.html
-https://www.wsws.org/en/articles/2023/07/26/kpcx-j26.html
 https://kyivindependent.com/five-ways-the-nyt-fails-its-readers-in-its-most-recent-piece-about-russias-war/
 https://fair.org/home/invasion-news-fits-on-front-page-more-when-an-enemy-does-the-invading/
 https://www.nature.com/articles/s41599-025-05587-0
@@ -29,7 +26,6 @@ https://www.aljazeera.com/opinions/2022/8/4/western-media-and-the-war-on-truth-i
 https://www.aljazeera.com/news/2022/2/28/russia-ukraine-crisis-in-maps-and-charts-live-news-interactive
 https://studies.aljazeera.net/en/policy-briefs/war-ukraine-enters-its-second-month-serious-implications-and-far-reaching-changes
 https://www.atlanticcouncil.org/in-depth-research-reports/report/undermining-ukraine-how-russia-widened-its-global-information-war-in-2023/
-https://www.foreignaffairs.com/tags/war-ukraine
 https://www.atlanticcouncil.org/region/ukraine/
 https://www.atlanticcouncil.org/war-in-ukraine/
 https://www.atlanticcouncil.org/blogs/new-atlanticist/twenty-questions-and-expert-answers-about-the-negotiations-to-end-russias-war-in-ukraine/
@@ -45,7 +41,6 @@ https://www.cjr.org/the_media_today/media_bias_ukraine_war.php
 https://www.cnn.com/2022/02/28/media/wartime-reporting-ukraine-russia/index.html
 https://www.pbs.org/wgbh/frontline/interactive/ap-russia-war-crimes-ukraine/stories/
 https://www.pbs.org/wgbh/frontline/interactive/ap-russia-war-crimes-ukraine/
-https://www.iom.int/crisis-ukraine
 https://en.wikipedia.org/wiki/Ukrainian_refugee_crisis
 https://ukraine.un.org/en/289506-unhcr-after-three-years-war-ukrainians-need-peace-and-aid
 https://hias.org/news/refugees-and-internally-displaced-people-ukraine-what-you-need-know/
@@ -58,14 +53,10 @@ https://www.cbsnews.com/ukraine-crisis/
 https://theconversation.com/the-bbcs-ukraine-coverage-may-be-changing-government-attitudes-to-the-public-service-broadcaster-178586
 https://www.cnbc.com/2024/04/23/ukraine-war-live-updates-latest-news-on-russia-and-the-war-in-ukraine.html
 https://niemanreports.org/how-ukrainian-media-is-navigating-the-challenge-of-reporting-ethically-on-the-russian-invasion/
-https://cpj.org/invasion-of-ukraine/
 https://rsf.org/en/two-years-war-ukraine-more-1500-journalists-and-150-media-supported-rsf
-https://www.polsoz.fu-berlin.de/kommwiss/arbeitsstellen/internationale_kommunikation/Projekte-und-Publikationen/War-reporting-from-Ukraine/index.html
-https://kyivindependent.com/
 https://united24media.com/war-in-ukraine/the-deadly-cost-of-truth-russias-crimes-against-journalists-13863
 https://www.state.gov/reports/2023-country-reports-on-human-rights-practices/ukraine/
 https://www.globalsecurity.org/wmd/library/news/ukraine/2023/11/ukraine-231108-european-commission01.htm
-https://en.wikipedia.org/wiki/Corruption_in_Ukraine
 https://www.state.gov/reports/2022-country-reports-on-human-rights-practices/ukraine/
 https://voxukraine.org/en/propaganda-diary-2022-2023-voxcheck-presents-the-database-of-russian-propaganda-in-the-european-mass-media
 https://voxukraine.org/en/same-narratives-shifting-fakes-voxchecks-investigation-into-russian-falsehoods-in-europe
@@ -94,3 +85,11 @@ https://www.brookings.edu/articles/how-the-war-in-ukraine-changed-russias-global
 https://www.brookings.edu/articles/interim-security-insights-and-implications-from-the-first-two-months-of-the-russia-ukraine-war/
 https://www.brookings.edu/articles/war-peace-and-corruption-in-embattled-ukraine/
 https://www.chathamhouse.org/sites/default/files/2023-09/2023-09-13-consequences-war-ukraine-climate-food-energy-brown-et-al.pdf
+https://www.nytimes.com/2025/11/29/world/europe/zelensky-yermak-ukraine.html
+https://www.nytimes.com/2025/11/29/world/europe/ukraine-kyiv-missiles.html
+https://www.nytimes.com/2025/11/29/world/africa/south-africa-russia-ukraine-fighters-zuma.html
+https://www.nytimes.com/2025/11/26/podcasts/the-daily/ukrainian-peace-plan-written-by-russia.html
+https://www.nytimes.com/2025/11/25/world/europe/ukraine-russia-strike-peace-plan.html
+https://www.nytimes.com/2025/11/24/world/europe/ukraine-zelensky-rubio-russia-peace-plan.html
+https://www.nytimes.com/2025/11/22/world/europe/russia-ukraine.html
+https://www.nytimes.com/2025/11/21/world/europe/ukraine-russia-us-peace-plan.html
