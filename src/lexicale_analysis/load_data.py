@@ -5,26 +5,36 @@ import json
 import csv
 import os
 
-def load_corpus_texts(base_dir: str) -> Dict[str, Dict[str, str]]:
+# In lexicale_analysis/load_data.py
+def load_corpus_texts(base_dir: str, max_docs_per_category=None) -> Dict[str, Dict[str, str]]:
     """
-    Load cleaned texts from data/processed_clean/{gaza,ukraine}/
-    Returns dict: { "gaza": {id: text, ...}, "ukraine": {id: text, ...} }
-    ID is filename without extension.
+    Load with optional limit for testing
     """
     base = Path(base_dir)
     corpora = {}
+    
     for cat in ("gaza", "ukraine"):
         cat_dir = base / cat
         docs = {}
         if cat_dir.exists():
-            for p in sorted(cat_dir.glob("*.txt")):
+            files = sorted(cat_dir.glob("*.txt"))
+            if max_docs_per_category:
+                files = files[:max_docs_per_category]
+            
+            for p in files:
                 doc_id = p.stem
                 try:
                     text = p.read_text(encoding="utf-8")
-                except Exception:
-                    text = p.read_text(encoding="latin-1")
-                docs[doc_id] = text
+                    # Skip empty or very short documents
+                    if len(text.split()) < 50:
+                        continue
+                    docs[doc_id] = text
+                except Exception as e:
+                    print(f"[ERROR] Failed to load {p}: {e}")
+                    
+        print(f"[INFO] Loaded {len(docs)} documents for {cat}")
         corpora[cat] = docs
+    
     return corpora
 
 def save_json(obj, path):

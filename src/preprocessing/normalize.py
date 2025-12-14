@@ -1,40 +1,53 @@
-import string
+import re
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
 def download_nltk_data():
-    try:
-        nltk.data.find('tokenizers/punkt')
-    except LookupError:
-        nltk.download('punkt')
-    
-    try:
-        nltk.data.find('corpora/stopwords')
-    except LookupError:
-        nltk.download('stopwords')
+    for res in ['punkt', 'stopwords']:
+        try:
+            nltk.data.find(
+                f'tokenizers/{res}' if res == 'punkt' else f'corpora/{res}'
+            )
+        except LookupError:
+            nltk.download(res)
 
 download_nltk_data()
 
-def to_lowercase(text):
-    return text.lower()
-
-def remove_punctuation(text):
-    extended_punctuation = string.punctuation + "”’“‘–—«»…"
-    return text.translate(str.maketrans('', '', extended_punctuation))
-
-def tokenize_text(text):
-    return word_tokenize(text)
-
-def remove_stopwords(tokens, language='english'):
-    stop_words = set(stopwords.words(language))
-    extra_sw = {"say","says","said","also","include","report","reports","reported","news","media","one","two","new","first","last","year","years","people","percent","many","most","some","may","like","even","u","us","would","could","should","might","must"}
-    stop_words |= extra_sw
-    return [word for word in tokens if word.lower() not in stop_words]
-
 def normalize_text(text, language='english'):
-    text = to_lowercase(text)
-    text = remove_punctuation(text)
-    tokens = tokenize_text(text)
-    tokens = remove_stopwords(tokens, language)
+    # Lowercase
+    text = text.lower()
+
+    # Replace punctuation with spaces (SAFE)
+    # Keep hyphens to preserve terms like "far-right"
+    text = re.sub(r"[^\w\s\-]", " ", text)
+
+    # Normalize whitespace
+    text = re.sub(r"\s+", " ", text).strip()
+
+    # Tokenize
+    tokens = word_tokenize(text)
+
+    # Remove stopwords
+    stop_words = get_custom_stopwords(language)
+    tokens = [t for t in tokens if t not in stop_words]
+
     return tokens
+
+def get_custom_stopwords(language='english'):
+    stop_words = set(stopwords.words(language))
+
+    domain_stopwords = {
+        "say", "says", "said",
+        "according", "source", "sources",
+        "news", "media",
+        "report", "reports", "reported",
+        "one", "two", "three",
+        "year", "years",
+        "people", "percent", "many", "some",
+        "u", "us", "im", "ive",
+        "dont", "doesnt", "didnt", "wont", "cant",
+        "october"
+    }
+
+    return stop_words | domain_stopwords

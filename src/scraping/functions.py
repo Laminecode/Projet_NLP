@@ -38,10 +38,13 @@ def extract_article(url, LINKS_FILE):
     try:
         r = requests.get(url, headers=HEADERS, timeout=12)
         r.raise_for_status()
-    except Exception as e:
-        print(f"[ERROR] Cannot fetch {url} : {e}")
+    except requests.exceptions.RequestException as e:
+        print(f"[ERROR] Cannot fetch {url}: {e}")
         remove_link_from_file(url, LINKS_FILE)
         return None
+    except Exception as e:
+        print(f"[UNEXPECTED ERROR] {url}: {e}")
+        return None 
 
     soup = BeautifulSoup(r.text, "html.parser")
 

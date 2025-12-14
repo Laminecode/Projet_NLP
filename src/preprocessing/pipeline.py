@@ -8,7 +8,21 @@ def preprocess_pipeline(text, language='english'):
     lemmatized_tokens = lemmatize_tokens(tokens)
     return lemmatized_tokens
 
-def preprocess_to_string(text, language='english'):
+# In preprocessing/pipeline.py
+def preprocess_to_string(text, language='english', min_token_length=2, max_tokens=950):
+    """
+    Enhanced preprocessing with configurable parameters
+    """
+    if not text or not text.strip():
+        return ""
+    
     tokens = preprocess_pipeline(text, language)
-    tokens = [t for t in tokens if len(t) > 1 and not t.isdigit()]
-    return " ".join(tokens[:820])
+    filtered_tokens = [
+        t for t in tokens 
+        if len(t) >= min_token_length 
+        and not t.isdigit() 
+        and not t.replace('.', '').isdigit()  # Remove decimals like "3.14"
+        and t.isalpha()  # Only alphabetic tokens
+    ]
+    
+    return " ".join(filtered_tokens[:max_tokens])

@@ -16,6 +16,7 @@ def normalize(text):
 def hash_text(text):
     return hashlib.sha1(text.encode("utf-8")).hexdigest()
 
+# In scraping/build_corpus.py
 def process_category(cat):
     raw_dir = os.path.join(RAW_BASE, cat)
     out_dir = os.path.join(OUT_BASE, cat)
@@ -24,28 +25,61 @@ def process_category(cat):
     files = glob(os.path.join(raw_dir, "*.json"))
     seen_hashes = set()
     saved = 0
+    duplicates = 0
+    errors = 0
+    
+    stats = {
+        "total_files": len(files),
+        "saved": 0,
+        "duplicates": 0,
+        "errors": 0,
+        "word_counts": []
+    }
 
     for fpath in files:
-        with open(fpath, "r", encoding="utf-8") as f:
-            obj = json.load(f)
+        try:
+            with open(fpath, "r", encoding="utf-8") as f:
+                obj = json.load(f)
 
-        text = normalize(obj.get("content", ""))
+            text = normalize(obj.get("content", ""))
+            
+            # Validate text quality
+            if len(text.split()) < 100:  # Minimum word count
+                print(f"[WARNING] Skipping short article: {fpath}")
+                errors += 1
+                continue
 
+            h = hash_text(text)
+            if h in seen_hashes:
+                duplicates += 1
+                continue
 
-        h = hash_text(text)
-        if h in seen_hashes:
-            continue
+            seen_hashes.add(h)
+            article_id = obj.get("id") or abs(hash(obj["url"]))
+            out_path = os.path.join(out_dir, f"{article_id}.txt")
 
-        seen_hashes.add(h)
-        article_id = obj.get("id") or abs(hash(obj["url"]))
-        out_path = os.path.join(out_dir, f"{article_id}.txt")
+            with open(out_path, "w", encoding="utf-8") as f:
+                f.write(text)
 
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.write(text)
+            saved += 1
+            stats["word_counts"].append(len(text.split()))
+            
+        except Exception as e:
+            print(f"[ERROR] Failed processing {fpath}: {e}")
+            errors += 1
 
-        saved += 1
-
-    print(f"[INFO] Saved {saved} cleaned TXT files for {cat}")
+    stats["saved"] = saved
+    stats["duplicates"] = duplicates
+    stats["errors"] = errors
+    stats["avg_words"] = sum(stats["word_counts"]) / len(stats["word_counts"]) if stats["word_counts"] else 0
+    
+    print(f"[INFO] {cat}: Saved={saved}, Duplicates={duplicates}, Errors={errors}, Avg Words={stats['avg_words']:.0f}")
+    
+    # Save statistics
+    with open(os.path.join(out_dir, "_stats.json"), "w") as f:
+        json.dump(stats, f, indent=2)
+    
+    return stats
 
 def main():
     main_gaza()
