@@ -2,11 +2,12 @@
 import os
 from pathlib import Path
 import argparse
+
 from load_data import load_corpus_texts, save_json, save_csv_rows
 from frequency import compute_and_save_all, actor_term_contexts, get_word_counts
 from lexical_stats import article_stats, save_article_stats, actor_pos_contexts
 from tfidf import compute_tfidf_for_corpus, top_terms_per_corpus, save_tfidf_terms
-from similarity import compute_cosine_similarity, save_similarity_matrix, build_cooccurrence, compute_pmi, top_pmi_bigrams
+from similarity import compute_cosine_similarity, save_similarity_matrix, build_cooccurrence
 import numpy as np
 import pandas as pd
 from collections import Counter
@@ -119,17 +120,13 @@ def run_all(data_base: str = "data/processed_clean"):
     df_logodds.head(200).to_csv(os.path.join(STATS_DIR, "gaza_vs_ukraine_logodds_top200.csv"), index=False)
     df_logodds.tail(200).to_csv(os.path.join(STATS_DIR, "gaza_vs_ukraine_logodds_bottom200.csv"), index=False)
 
-    # 7) Cooccurrence + PMI per corpus
-    print("[8/9] Cooccurrence & PMI...")
+    # 7) Cooccurrence per corpus
+    print("[8/9] Cooccurrence...")
     for cat, docs in corpora.items():
         if not docs: continue
         co, unig = build_cooccurrence(docs, vocab_set=None, window=5)
         total_windows = sum(unig.values())
-        pmi = compute_pmi(co, unig, total_windows)
-        top_pmi = top_pmi_bigrams(pmi, topk=200)
-        # save top PMI bigrams
-        rows = [{"bigram": t, "pmi": s} for t,s in top_pmi]
-        save_csv_rows(os.path.join(STATS_DIR, f"{cat}_top_pmi_bigrams.csv"), ["bigram","pmi"], rows)
+
         # optionally save cooccurrence counts (sparse)
         # we'll save top pairs by count
         top_pairs = sorted(co.items(), key=lambda x: -x[1])[:500]

@@ -25,7 +25,7 @@ def save_similarity_matrix(sim: np.ndarray, doc_ids: List[str], out_csv: str):
             writer.writerow([doc_ids[i]] + [float(x) for x in row])
 
 # ----------------------------
-# Cooccurrence & PMI
+# Cooccurrence
 # ----------------------------
 from collections import defaultdict, Counter
 def build_cooccurrence(docs: Dict[str, str], vocab_set:set=None, window:int=5):
@@ -49,21 +49,3 @@ def build_cooccurrence(docs: Dict[str, str], vocab_set:set=None, window:int=5):
                 co[pair] += 1
     return co, unigram
 
-def compute_pmi(co_counts: dict, unigram: dict, total_windows:int):
-    """
-    Compute PMI for each pair in co_counts.
-    total_windows: total count to normalize (approx. sum of unigram)
-    """
-    pmi = {}
-    for (w1,w2), c in co_counts.items():
-        p_w1 = unigram[w1] / total_windows if total_windows>0 else 0.0
-        p_w2 = unigram[w2] / total_windows if total_windows>0 else 0.0
-        p_w1w2 = c / total_windows if total_windows>0 else 0.0
-        # small-smoothing
-        score = math.log2((p_w1w2 / (p_w1 * p_w2 + 1e-12)) + 1e-12)
-        pmi[(w1,w2)] = score
-    return pmi
-
-def top_pmi_bigrams(pmi_dict:dict, topk:int=100):
-    items = sorted(pmi_dict.items(), key=lambda x: -x[1])
-    return [(f"{a} {b}",score) for (a,b),score in items[:topk]]

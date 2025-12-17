@@ -3,38 +3,16 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
-def download_nltk_data():
-    for res in ['punkt', 'stopwords']:
-        try:
-            nltk.data.find(
-                f'tokenizers/{res}' if res == 'punkt' else f'corpora/{res}'
-            )
-        except LookupError:
-            nltk.download(res)
-
-download_nltk_data()
-
-def normalize_text(text, language='english'):
-    # Lowercase
-    text = text.lower()
-
-    # Replace punctuation with spaces (SAFE)
-    # Keep hyphens to preserve terms like "far-right"
-    text = re.sub(r"[^\w\s\-]", " ", text)
-
-    # Normalize whitespace
-    text = re.sub(r"\s+", " ", text).strip()
-
-    # Tokenize
-    tokens = word_tokenize(text)
-
-    # Remove stopwords
-    stop_words = get_custom_stopwords(language)
-    tokens = [t for t in tokens if t not in stop_words]
-
-    return tokens
-
 def get_custom_stopwords(language='english'):
+    """
+    Get standard stopwords plus domain-specific stopwords for news/current events.
+    
+    Args:
+        language: Language for stopwords
+        
+    Returns:
+        Set of stopwords to filter
+    """
     stop_words = set(stopwords.words(language))
 
     domain_stopwords = {
@@ -51,3 +29,37 @@ def get_custom_stopwords(language='english'):
     }
 
     return stop_words | domain_stopwords
+
+
+def normalize_text(text, language='english'):
+    """
+    Normalize text: lowercase, remove punctuation, tokenize, remove stopwords.
+    
+    Args:
+        text: Cleaned text input
+        language: Language for stopwords
+        
+    Returns:
+        List of normalized tokens
+    """
+    # Lowercase
+    text = text.lower()
+
+    # Replace punctuation with spaces (keep hyphens for compound words)
+    text = re.sub(r"[^\w\s\-]", " ", text)
+
+    # Normalize whitespace
+    text = re.sub(r"\s+", " ", text).strip()
+
+    # Tokenize
+    try:
+        tokens = word_tokenize(text)
+    except Exception as e:
+        print(f"[WARNING] Tokenization failed: {e}")
+        tokens = text.split()
+
+    # Remove stopwords
+    stop_words = get_custom_stopwords(language)
+    tokens = [t for t in tokens if t not in stop_words]
+
+    return tokens

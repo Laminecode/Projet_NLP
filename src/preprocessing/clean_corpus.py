@@ -6,26 +6,36 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"
 
 from src.preprocessing.pipeline import preprocess_to_string
 
-RAW_TEXT_BASE = "data/raw_text"
-OUT_BASE = "data/processed_clean"
-
-os.makedirs(OUT_BASE, exist_ok=True)
-
-def process_category(cat):
-    raw_dir = os.path.join(RAW_TEXT_BASE, cat)
-    out_dir = os.path.join(OUT_BASE, cat)
+def process_category(cat, raw_base="data/raw_text", out_base="data/processed_clean"):
+    """
+    Process all .txt files in a category directory.
+    
+    Args:
+        cat: Category name (e.g., "gaza", "ukraine")
+        raw_base: Base directory for raw text
+        out_base: Base directory for output
+    """
+    raw_dir = os.path.join(raw_base, cat)
+    out_dir = os.path.join(out_base, cat)
     
     os.makedirs(out_dir, exist_ok=True)
     
     files = glob(os.path.join(raw_dir, "*.txt"))
 
-    print(f"[INFO] Processing {len(files)} files for {cat}...")
+    if not files:
+        print(f"[WARNING] No files found in {raw_dir}")
+        return
+
+    print(f"[INFO] Processing {len(files)} files for category '{cat}'...")
+    successful = 0
+    failed = 0
 
     for fpath in files:
         try:
             with open(fpath, "r", encoding="utf-8") as f:
                 raw_content = f.read()
             
+            # Preprocess
             text = preprocess_to_string(raw_content)
 
             if text:
@@ -34,17 +44,28 @@ def process_category(cat):
                 
                 with open(out_file_path, "w", encoding="utf-8") as f_out:
                     f_out.write(text)
+                
+                successful += 1
+            else:
+                print(f"[WARNING] No tokens after preprocessing: {os.path.basename(fpath)}")
 
         except Exception as e:
+            failed += 1
             print(f"[ERROR] Failed to process {fpath}: {e}")
 
+    print(f"[INFO] Category '{cat}': {successful} successful, {failed} failed")
     print(f"[INFO] Saved processed files to {out_dir}")
 
+
 def main():
-    process_category("gaza")
-    process_category("ukraine")
+    """Process all text categories."""
+    categories = ["gaza", "ukraine"]
+    
+    for cat in categories:
+        process_category(cat)
+    
     print("[DONE] Corpus cleaned and built!")
+
 
 if __name__ == "__main__":
     main()
-

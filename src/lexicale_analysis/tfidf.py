@@ -5,11 +5,12 @@ import csv
 from pathlib import Path
 from typing import Dict, List, Tuple
 import numpy as np
+from scipy.sparse import csr_matrix
 
 def compute_tfidf_for_corpus(docs: Dict[str, str],
                              max_features: int = 20000,
                              ngram_range=(1,2),
-                             min_df=2, max_df=0.95) -> Tuple[TfidfVectorizer, "sparse_matrix", List[str]]:
+                             min_df=2, max_df=0.95) -> Tuple[TfidfVectorizer, csr_matrix, List[str]]:
     doc_ids = list(docs.keys())
     texts = [docs[_id] for _id in doc_ids]
     vectorizer = TfidfVectorizer(max_features=max_features, ngram_range=ngram_range, min_df=min_df, max_df=max_df)

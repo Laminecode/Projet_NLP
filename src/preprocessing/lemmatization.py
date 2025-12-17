@@ -19,17 +19,29 @@ download_nltk_data()
 
 def lemmatize_tokens(tokens):
     """
-    POS-aware lemmatization using WordNet.
-    POS tagging is performed once on the full token list.
+    Perform POS-aware lemmatization on tokens.
+    
+    Args:
+        tokens: List of token strings
+        
+    Returns:
+        List of lemmatized tokens
     """
     if not tokens:
         return []
 
     lemmatizer = WordNetLemmatizer()
-    pos_tags = nltk.pos_tag(tokens)
+    
+    try:
+        pos_tags = nltk.pos_tag(tokens)
+    except Exception as e:
+        print(f"[WARNING] POS tagging failed: {e}. Using default lemmatization.")
+        # Fallback: lemmatize with NOUN (most common)
+        return [lemmatizer.lemmatize(token, wordnet.NOUN) for token in tokens]
 
     lemmas = []
     for word, tag in pos_tags:
+        # Map POS tags to WordNet POS
         wn_tag = {
             'J': wordnet.ADJ,
             'N': wordnet.NOUN,
@@ -37,6 +49,11 @@ def lemmatize_tokens(tokens):
             'R': wordnet.ADV
         }.get(tag[0], wordnet.NOUN)
 
-        lemmas.append(lemmatizer.lemmatize(word, wn_tag))
+        try:
+            lemma = lemmatizer.lemmatize(word, wn_tag)
+            lemmas.append(lemma)
+        except Exception as e:
+            print(f"[WARNING] Lemmatization failed for '{word}': {e}")
+            lemmas.append(word)
 
     return lemmas

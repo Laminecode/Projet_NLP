@@ -1,10 +1,5 @@
 https://www.britannica.com/event/2022-Russian-invasion-of-Ukraine
-https://en.wikipedia.org/wiki/2022_Russian_invasion_of_Ukraine
-https://www.cfr.org/global-conflict-tracker/conflict/conflict-ukraine
-https://en.wikipedia.org/wiki/Russo-Ukrainian_War
 https://www.statista.com/topics/9087/russia-ukraine-war-2022/
-https://en.wikipedia.org/wiki/Russo-Ukrainian_war_(2022–present)
-https://www.cnbc.com/2022/02/24/russian-forces-invade-ukraine.html
 https://news.un.org/en/story/2022/03/1113372
 https://reliefweb.int/report/ukraine/ukraine-civilian-casualties-2400-1-march-2022-enruuk
 https://www.statista.com/statistics/1296924/ukraine-war-casualties-daily/
@@ -54,9 +49,7 @@ https://www.cnbc.com/2024/04/23/ukraine-war-live-updates-latest-news-on-russia-a
 https://niemanreports.org/how-ukrainian-media-is-navigating-the-challenge-of-reporting-ethically-on-the-russian-invasion/
 https://rsf.org/en/two-years-war-ukraine-more-1500-journalists-and-150-media-supported-rsf
 https://united24media.com/war-in-ukraine/the-deadly-cost-of-truth-russias-crimes-against-journalists-13863
-https://www.state.gov/reports/2023-country-reports-on-human-rights-practices/ukraine/
 https://www.globalsecurity.org/wmd/library/news/ukraine/2023/11/ukraine-231108-european-commission01.htm
-https://www.state.gov/reports/2022-country-reports-on-human-rights-practices/ukraine/
 https://voxukraine.org/en/propaganda-diary-2022-2023-voxcheck-presents-the-database-of-russian-propaganda-in-the-european-mass-media
 https://voxukraine.org/en/same-narratives-shifting-fakes-voxchecks-investigation-into-russian-falsehoods-in-europe
 https://voxukraine.org/en/provocation-and-disinformation-overview
@@ -64,7 +57,6 @@ https://www.hrw.org/world-report/2024/country-chapters/ukraine
 https://www.hrw.org/news/2024/11/19/thousand-days-war-ukraine
 https://news.un.org/en/story/2024/12/1158671
 https://ukraine.un.org/en/286771-ukraine-human-rights-situation-remains-bleak-three-years-after-russia%E2%80%99s-full-scale-armed
-https://www.state.gov/reports/2024-country-reports-on-human-rights-practices/ukraine
 https://ukraine.ohchr.org/en/Ukraine-Human-rights-situation-remains-bleak-three-years-after-Russias-full-scale-armed-attack-UN-report
 https://www.hrw.org/world-report/2025/country-chapters/ukraine
 https://www.hrw.org/news/2024/01/11/russia-new-heights-repression
@@ -75,11 +67,6 @@ https://www.aljazeera.com/news/2025/10/23/trump-ukraine-and-europe-target-russia
 https://www.aljazeera.com/news/2024/10/4/russia-ukraine-war-all-the-proposed-peace-plans-explained
 https://www.theguardian.com/world/2024/feb/17/what-happened-in-the-russia-ukraine-war-this-week-catch-up-with-the-must-read-news-and-analysis
 https://www.cfr.org/global-conflict-tracker/conflict/conflict-ukraine
-https://www.csis.org/analysis/seven-contemporary-insights-state-ukraine-war
-https://www.csis.org/analysis/russias-war-ukraine-next-chapter
-https://www.csis.org/analysis/russias-battlefield-woes-ukraine
-https://www.csis.org/analysis/will-trumps-peace-plan-ukraine-succeed
-https://www.csis.org/analysis/russias-intense-air-campaign-october
 https://www.brookings.edu/articles/how-the-war-in-ukraine-changed-russias-global-standing/
 https://www.brookings.edu/articles/interim-security-insights-and-implications-from-the-first-two-months-of-the-russia-ukraine-war/
 https://www.brookings.edu/articles/war-peace-and-corruption-in-embattled-ukraine/
@@ -92,3 +79,4 @@ https://www.nytimes.com/2025/11/25/world/europe/ukraine-russia-strike-peace-plan
 https://www.nytimes.com/2025/11/24/world/europe/ukraine-zelensky-rubio-russia-peace-plan.html
 https://www.nytimes.com/2025/11/22/world/europe/russia-ukraine.html
 https://www.nytimes.com/2025/11/21/world/europe/ukraine-russia-us-peace-plan.html
+https://www.theguardian.com/world/2025/dec/06/swedish-navy-chief-russia-baltic-presence-ukraine-peace
