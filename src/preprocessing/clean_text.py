@@ -10,7 +10,6 @@ BOILERPLATE_PATTERNS = [
     r'newsletter.*',
 ]
 
-
 def clean_text(text: str) -> str:
     """
     Remove HTML entities, URLs, tags, boilerplate, and encoding artifacts.
@@ -32,8 +31,9 @@ def clean_text(text: str) -> str:
 
     # Remove HTML tags
     text = re.sub(r'<[^>]+>', ' ', text)
-    #replace _ - . with space
-    text = re.sub(r'[_\-\.\]+', '  ', text)
+
+    # Replace _ - . with space (corrected regex)
+    text = re.sub(r'[_\-.]+', ' ', text)
 
     # Remove boilerplate patterns
     for pat in BOILERPLATE_PATTERNS:

@@ -4,10 +4,10 @@ import os
 from pathlib import Path
 import argparse
 
-from load_data import load_corpus_texts
-from concordance import extract_concordances, save_concordances
-from word2vec import train_word2vec, save_actor_neighbors
-from clustering import cluster_embeddings, save_clusters
+from src.semantic_analysis.load_data import load_corpus_texts
+from src.semantic_analysis.concordance import extract_concordances, save_concordances
+from src.semantic_analysis.word2vec import train_word2vec, save_actor_neighbors
+from src.semantic_analysis.clustering import cluster_embeddings, save_clusters
 
 RESULTS_DIR = "results/semantic"
 

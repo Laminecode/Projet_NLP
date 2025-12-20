@@ -3,3 +3,213 @@ data/raw/
 data/raw_text/
 data/test_data/ 
 results/
+
+
+# ==================== Python ====================
+# Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environnement virtuel
+venv/
+env/
+ENV/
+.venv
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# pyenv
+.python-version
+
+# Spyder
+.spyderproject
+.spyproject
+
+# ==================== Node.js / Frontend ====================
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Build
+frontend/dist/
+frontend/build/
+frontend/.vite/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ==================== IDEs ====================
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+.idea_modules/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# ==================== OS ====================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+
+# ==================== Data & Results (GROS FICHIERS) ====================
+# Données brutes (peuvent être régénérées par scraping)
+data/raw/**/*.json
+data/raw_text/**/*.txt
+data/processed_clean/**/*.txt
+
+# IMPORTANT: Garder les statistiques
+!data/raw_text/**/_stats.json
+
+# Résultats d'analyse (peuvent être régénérés)
+results/**/*.csv
+results/**/*.json
+results/**/*.png
+results/**/*.jpg
+
+# EXCEPTION: Garder un exemple de résultats (optionnel)
+# !results/statistics/summary.json
+
+# ==================== Modèles & Embeddings ====================
+# Modèles Word2Vec (très lourds)
+*.model
+*.model.vectors.npy
+*.model.trainables.syn1neg.npy
+*.model.wv.vectors.npy
+
+# Modèles HuggingFace (très lourds)
+models/
+*.bin
+*.safetensors
+
+# ==================== Logs ====================
+*.log
+logs/
+*.out
+
+# ==================== Temporary ====================
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
+
+# ==================== Database ====================
+*.db
+*.sqlite
+*.sqlite3
+
+# ==================== Jupyter ====================
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ==================== Spacy ====================
+# Modèles Spacy (à télécharger via spacy download)
+# Ne pas commit les modèles, documenter comment les télécharger
+
+# ==================== Secrets ====================
+# API Keys
+.env
+.env.local
+secrets.json
+config.json
+credentials.json
+
+# ==================== Package managers ====================
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ==================== Build artifacts ====================
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# ==================== Coverage ====================
+.coverage
+htmlcov/
+
+# ==================== Documentation build ====================
+docs/_build/
+site/
+
+# ==================== Large files warning ====================
+# Si vous voulez commiter des exemples de données:
+# 1. Créez un dossier data/samples/
+# 2. Mettez quelques fichiers légers (< 1MB)
+# 3. Ajoutez une exception ici:
+# !data/samples/*.txt
+mon_env310/
