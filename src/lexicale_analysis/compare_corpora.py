@@ -3,11 +3,11 @@ import os
 from pathlib import Path
 import argparse
 
-from load_data import load_corpus_texts, save_json, save_csv_rows
-from frequency import compute_and_save_all, actor_term_contexts, get_word_counts
-from lexical_stats import article_stats, save_article_stats, actor_pos_contexts
-from tfidf import compute_tfidf_for_corpus, top_terms_per_corpus, save_tfidf_terms
-from similarity import compute_cosine_similarity, save_similarity_matrix, build_cooccurrence
+from src.lexicale_analysis.load_data import load_corpus_texts, save_json, save_csv_rows
+from src.lexicale_analysis.frequency import compute_and_save_all, actor_term_contexts, get_word_counts
+from src.lexicale_analysis.lexical_stats import article_stats, save_article_stats, actor_pos_contexts
+from src.lexicale_analysis.tfidf import compute_tfidf_for_corpus, top_terms_per_corpus, save_tfidf_terms
+from src.lexicale_analysis.similarity import compute_cosine_similarity, save_similarity_matrix, build_cooccurrence
 import numpy as np
 import pandas as pd
 from collections import Counter

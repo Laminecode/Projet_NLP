@@ -1,5 +1,5 @@
 import os
-from functions import (
+from src.scraping.functions import (
     extract_article, read_links,
      save_json
 )

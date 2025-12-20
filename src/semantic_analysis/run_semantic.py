@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import argparse
 
+<<<<<<< HEAD
 from load_data import load_corpus_texts
 from concordance import extract_concordances, save_concordances
 from word2vec import train_word2vec, save_actor_neighbors
@@ -13,6 +14,13 @@ from figures import (
     plot_word2vec_neighbors,
     plot_clusters_text
 )
+=======
+from src.semantic_analysis.load_data import load_corpus_texts
+from src.semantic_analysis.concordance import extract_concordances, save_concordances
+from src.semantic_analysis.word2vec import train_word2vec, save_actor_neighbors
+from src.semantic_analysis.clustering import cluster_embeddings, save_clusters
+
+>>>>>>> 283e0ecaa66c0c3ca393ef130dc4269f200638d7
 RESULTS_DIR = "results/semantic"
 
 def ensure_dirs():

@@ -2,8 +2,8 @@ import os
 import json
 import hashlib
 from glob import glob
-from scrape_ukrain import (main_ukrain)
-from scrape_gaza import (main_gaza)
+from src.scraping.scrape_ukrain import main_ukrain
+from src.scraping.scrape_gaza import (main_gaza)
 
 RAW_BASE = "data/raw"
 OUT_BASE = "data/raw_text"
