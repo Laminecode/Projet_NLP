@@ -8,7 +8,11 @@ from load_data import load_corpus_texts
 from concordance import extract_concordances, save_concordances
 from word2vec import train_word2vec, save_actor_neighbors
 from clustering import cluster_embeddings, save_clusters
-
+from figures import (
+    plot_concordance_context,
+    plot_word2vec_neighbors,
+    plot_clusters_text
+)
 RESULTS_DIR = "results/semantic"
 
 def ensure_dirs():
@@ -38,7 +42,7 @@ def run_semantic(data_base: str):
     print("[Semantic] Word2Vec & Clustering...")
 
     actors_terms = ["israel","palestine","hamas","russia","ukraine","putin","idf"]
-
+    print(corpora.keys())
     for cat, docs in corpora.items():
         if not docs:
             continue
@@ -57,7 +61,30 @@ def run_semantic(data_base: str):
             f"{RESULTS_DIR}/{cat}_semantic_clusters.csv"
         )
 
-    
+    # -------- Generate figures --------
+    RESULTS_DIR2 = "results/figures_semantic"
+    print("[Semantic] Generating figures...")
+
+    for kw in ["attack", "civilian"]:
+        for cat in corpora:
+            rows = extract_concordances(corpora[cat], kw)
+            plot_concordance_context(
+                rows,
+                kw,
+                f"{RESULTS_DIR2}/{cat}_concordance_{kw}.png"
+            )
+
+    for cat in corpora:
+        plot_word2vec_neighbors(
+            f"{RESULTS_DIR}/{cat}_word2vec_neighbors.csv",
+            "israel",
+            f"{RESULTS_DIR2}/{cat}_word2vec_israel.png"
+        )
+
+        plot_clusters_text(
+            f"{RESULTS_DIR}/{cat}_semantic_clusters.csv",
+            f"{RESULTS_DIR2}/{cat}_clusters.png"
+        )
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run semantic analysis")
