@@ -35,7 +35,7 @@ app = FastAPI(
 # Configuration CORS pour permettre les requêtes du frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # Vite et React dev servers
+    allow_origins=["http://localhost:5174", "http://localhost:3000"],  # Vite et React dev servers
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -337,7 +337,10 @@ async def run_semantic_analysis_task():
         print("[BACKEND] Analyse sémantique terminée")
     except Exception as e:
         ANALYSIS_STATUS["semantic"]["running"] = False
+        ANALYSIS_STATUS["semantic"]["completed"] = False
         print(f"[BACKEND ERROR] Analyse sémantique échouée: {e}")
+        import traceback
+        traceback.print_exc()
 
 @app.post("/api/analysis/semantic/start")
 async def start_semantic_analysis(background_tasks: BackgroundTasks):
@@ -353,38 +356,144 @@ async def get_semantic_results(corpus: str = "gaza"):
     """Récupère les résultats de l'analyse sémantique"""
     if corpus not in ["gaza", "ukraine"]:
         raise HTTPException(status_code=400, detail="Corpus invalide. Utilisez 'gaza' ou 'ukraine'")
-    
-    concordances = {}
+    # Préparer les chemins et structures de retour
     keywords = ["attack", "strike", "civilian", "resistance", "occupation"]
-    
+    concordances = {}
+
+    # Lire les concordances par mot-clé (fichiers CSV: {corpus}_concordance_{keyword}.csv)
     for kw in keywords:
-        filepath = f"results/semantic/{corpus}_concordance_{kw}.csv"
-        concordances[kw] = read_csv_to_dict(filepath)
-    
+        path = f"results/semantic/{corpus}_concordance_{kw}.csv"
+        rows = read_csv_to_dict(path)
+        items = []
+        for r in rows:
+            items.append({
+                'doc_id': r.get('doc_id') or r.get('id'),
+                'left': r.get('left') or r.get('context_left') or '',
+                'keyword': r.get('keyword') or kw,
+                'right': r.get('right') or r.get('context_right') or ''
+            })
+        concordances[kw] = items
+
+    # Lire les voisins word2vec
     neighbors_file = f"results/semantic/{corpus}_word2vec_neighbors.csv"
+    neighbors_rows = read_csv_to_dict(neighbors_file)
+    neighbors = []
+    for r in neighbors_rows:
+        try:
+            sim = float(r.get('similarity') or r.get('sim') or 0)
+        except Exception:
+            sim = 0.0
+        neighbors.append({
+            'actor': r.get('actor') or r.get('entity'),
+            'neighbor': r.get('neighbor') or r.get('word'),
+            'similarity': sim
+        })
+
+    # Lire les clusters sémantiques et éclater les mots
     clusters_file = f"results/semantic/{corpus}_semantic_clusters.csv"
-    
-    neighbors = read_csv_to_dict(neighbors_file)
-    clusters = read_csv_to_dict(clusters_file)
-    
+    clusters_rows = read_csv_to_dict(clusters_file)
+    clusters = []
+    for r in clusters_rows:
+        cluster_id = r.get('cluster_id') or r.get('cluster') or r.get('cluster')
+        keywords_str = r.get('keywords') or r.get('words') or ''
+        if isinstance(keywords_str, str):
+            words = [w.strip() for w in keywords_str.split(',') if w.strip()]
+            for w in words:
+                # cluster_id peut être non-numérique, essayer de le caster
+                try:
+                    cid = int(cluster_id)
+                except Exception:
+                    cid = cluster_id
+                clusters.append({'cluster': cid, 'word': w})
+
     return {
-        "status": "success",
-        "data": {
-            "concordances": concordances,
-            "word2vec_neighbors": neighbors,
-            "clusters": clusters
+        'status': 'success',
+        'data': {
+            'concordances': concordances,
+            'word2vec_neighbors': neighbors,
+            'clusters': clusters
         }
     }
 
 @app.get("/api/analysis/sentiment/results")
-async def get_sentiment_results():
+async def get_sentiment_results(corpus: str = "gaza"):
     """Récupère les résultats de l'analyse de sentiment"""
-    # Placeholder - à implémenter selon vos scripts de sentiment
+    if corpus not in ["gaza", "ukraine"]:
+        raise HTTPException(status_code=400, detail="Corpus invalide. Utilisez 'gaza' ou 'ukraine'")
+    
+    victims_file = f"results/sentiment/{corpus}_victims_sentiment.csv"
+    actor_file = f"results/sentiment/{corpus}_actor_sentiment.csv"
+    
+    victims = read_csv_to_dict(victims_file)
+    # Pour les acteurs, on agrège par nom d'acteur pour obtenir une moyenne et un nombre d'occurrences
+    actors = []
+    try:
+        if os.path.exists(actor_file):
+            df_actors = pd.read_csv(actor_file)
+            if not df_actors.empty and 'actor' in df_actors.columns:
+                grouped = df_actors.groupby('actor').agg(
+                    mean_compound=pd.NamedAgg(column='compound', aggfunc='mean'),
+                    occurrences=pd.NamedAgg(column='actor', aggfunc='count')
+                ).reset_index()
+
+                # Construire la liste d'acteurs pour le frontend
+                actors = []
+                for _, row in grouped.iterrows():
+                    actors.append({
+                        'actor': row['actor'],
+                        'mean_score': float(row['mean_compound']),
+                        'count': int(row['occurrences']),
+                        'sample_text': None
+                    })
+            else:
+                actors = read_csv_to_dict(actor_file)
+        else:
+            actors = []
+    except Exception as e:
+        print(f"Erreur lors de l'agrégation des acteurs: {e}")
+        actors = read_csv_to_dict(actor_file)
+    
     return {
         "status": "success",
-        "message": "Analyse de sentiment à implémenter",
-        "data": {}
+        "data": {
+            "victims": victims,
+            "actors": actors
+        }
     }
+
+async def run_sentiment_analysis_task():
+    """Tâche de fond pour l'analyse de sentiment"""
+    global ANALYSIS_STATUS
+    try:
+        ANALYSIS_STATUS["sentiment"]["running"] = True
+        print("[BACKEND] Démarrage analyse de sentiment...")
+        
+        # Import dynamique pour éviter les erreurs si le module n'existe pas
+        try:
+            from src.sentiment.run_sentiment import run_sentiment
+            run_sentiment(data_base="data/processed_clean")
+            ANALYSIS_STATUS["sentiment"]["running"] = False
+            ANALYSIS_STATUS["sentiment"]["completed"] = True
+            print("[BACKEND] Analyse de sentiment terminée")
+        except ImportError as ie:
+            print(f"[BACKEND ERROR] Module sentiment non trouvé: {ie}")
+            raise HTTPException(status_code=500, detail="Module d'analyse de sentiment non disponible")
+            
+    except Exception as e:
+        ANALYSIS_STATUS["sentiment"]["running"] = False
+        ANALYSIS_STATUS["sentiment"]["completed"] = False
+        print(f"[BACKEND ERROR] Analyse de sentiment échouée: {e}")
+        import traceback
+        traceback.print_exc()
+
+@app.post("/api/analysis/sentiment/start")
+async def start_sentiment_analysis(background_tasks: BackgroundTasks):
+    """Lance l'analyse de sentiment"""
+    if ANALYSIS_STATUS["sentiment"]["running"]:
+        raise HTTPException(status_code=400, detail="Analyse de sentiment déjà en cours")
+    
+    background_tasks.add_task(run_sentiment_analysis_task)
+    return {"status": "success", "message": "Analyse de sentiment démarrée"}
 
 @app.get("/api/analysis/status")
 async def get_analysis_status():

@@ -1,9 +1,9 @@
 from pathlib import Path
 import csv
 
-from load_data import load_corpus_texts
-from victim_sentiment import extract_victim_sentiment
-from actor_sentiment import extract_actor_sentiment
+from src.sentiment.load_data import load_corpus_texts
+from src.sentiment.victim_sentiment import extract_victim_sentiment
+from src.sentiment.actor_sentiment import extract_actor_sentiment
 
 OUT = "results/sentiment"
 
