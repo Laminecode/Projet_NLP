@@ -35,10 +35,6 @@ def save_wordfreq(counter, out_csv: str, top_n: int = None):
         writer.writerows(items)
 
 def actor_term_contexts(docs: Dict[str, str], actor_lemmas:List[str], window:int=10, topk:int=100):
-    """
-    For each occurrence of an actor lemma, collect context tokens within window.
-    Returns Counter of context tokens.
-    """
     c = Counter()
     for text in docs.values():
         tokens = text.split()
@@ -52,12 +48,7 @@ def actor_term_contexts(docs: Dict[str, str], actor_lemmas:List[str], window:int
     return c.most_common(topk)
 
 def compute_and_save_all(corpora: Dict[str, Dict[str, str]], out_dir: str):
-    """
-    For each corpus compute:
-      - unigram frequencies
-      - bigram & trigram frequencies
-      - save CSVs
-    """
+
     Path(out_dir).mkdir(parents=True, exist_ok=True)
     counters = {}
     for cat, docs in corpora.items():

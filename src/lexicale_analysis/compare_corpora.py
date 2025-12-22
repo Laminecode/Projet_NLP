@@ -23,10 +23,7 @@ def ensure_dirs():
 
 # -------- Log-odds ratio (with Dirichlet prior) ----------
 def compute_log_odds(counts_a:Counter, counts_b:Counter, prior:float=0.01):
-    """
-    Returns pandas DataFrame with columns:
-      term, count_a, count_b, logodds, z
-    """
+
     vocab = sorted(set(list(counts_a.keys()) + list(counts_b.keys())))
     a = np.array([counts_a.get(w,0) for w in vocab], dtype=float)
     b = np.array([counts_b.get(w,0) for w in vocab], dtype=float)
@@ -83,7 +80,6 @@ def run_all(data_base: str = "data/processed_clean"):
 
     # 4) Actor-term contexts
     print("[5/9] Actor term contexts...")
-    # default actor list (lemmatized forms that should match processed_clean)
     actors = {
         "palestin": ["palestin","palestinian","palestine","hamas"],
         "israel": ["israel","israeli","idf"],
@@ -127,8 +123,6 @@ def run_all(data_base: str = "data/processed_clean"):
         co, unig = build_cooccurrence(docs, vocab_set=None, window=5)
         total_windows = sum(unig.values())
 
-        # optionally save cooccurrence counts (sparse)
-        # we'll save top pairs by count
         top_pairs = sorted(co.items(), key=lambda x: -x[1])[:500]
         rows2 = [{"w1": a, "w2": b, "count": c} for (a,b),c in top_pairs]
         save_csv_rows(os.path.join(STATS_DIR, f"{cat}_top_cooccurrence_pairs.csv"), ["w1","w2","count"], rows2)

@@ -3,6 +3,7 @@ data/raw/
 data/raw_text/
 data/test_data/ 
 results/
+report.md
 
 
 # ==================== Python ====================

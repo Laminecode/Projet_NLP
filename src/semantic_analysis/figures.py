@@ -5,9 +5,7 @@ import csv
 
 
 def plot_concordance_context(rows, keyword, out_png, topk=15):
-    """
-    rows: output of extract_concordances
-    """
+
     words = []
     for r in rows:
         words.extend(r["left"].split())

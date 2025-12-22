@@ -9,9 +9,7 @@ def extract_concordances(
     window: int = 5,
     max_lines: int = 200
 ):
-    """
-    Return KWIC concordances for a keyword.
-    """
+
     rows = []
     for doc_id, text in docs.items():
         tokens = text.split()

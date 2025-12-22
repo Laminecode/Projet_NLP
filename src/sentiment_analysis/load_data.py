@@ -5,11 +5,8 @@ import json
 import csv
 import os
 
-# In lexicale_analysis/load_data.py
 def load_corpus_texts(base_dir: str, max_docs_per_category=None) -> Dict[str, Dict[str, str]]:
-    """
-    Load with optional limit for testing
-    """
+
     base = Path(base_dir)
     corpora = {}
     

@@ -8,10 +8,7 @@ from collections import defaultdict
 import math
 
 def compute_cosine_similarity(X) -> np.ndarray:
-    """
-    X : doc-term matrix (sparse or dense)
-    returns similarity matrix (dense)
-    """
+
     sim = cosine_similarity(X)
     return sim
 
@@ -29,10 +26,6 @@ def save_similarity_matrix(sim: np.ndarray, doc_ids: List[str], out_csv: str):
 # ----------------------------
 from collections import defaultdict, Counter
 def build_cooccurrence(docs: Dict[str, str], vocab_set:set=None, window:int=5):
-    """
-    Build cooccurrence counts (token-token) across docs.
-    Returns (co_counts: dict[(w1,w2)]->count, unigram_counts)
-    """
     co = defaultdict(int)
     unigram = Counter()
     for txt in docs.values():

@@ -8,14 +8,7 @@ LINKS_FILE = "./data/ukraine_links.txt"
 OUTPUT_DIR = "./data/raw/ukraine"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# def main():
-#     links = read_links(LINKS_FILE)
-#     print(f"[INFO] Found {len(links)} Ukraine links")
 
-#     for url in links:
-#         article = extract_article(url, LINKS_FILE)
-#         if article:
-#             save_json(article, OUTPUT_DIR)
 def main_ukrain():
     links = read_links(LINKS_FILE)
     print(f"[INFO] Found {len(links)} Ukraine links")

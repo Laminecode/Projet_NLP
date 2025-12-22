@@ -120,7 +120,7 @@ def main():
     plot_tfidf()
     plot_logodds()
 
-    # Actors (adapt to your project)
+    # Actors 
     for actor in ["israel", "palestin", "ukraine", "russia"]:
         plot_actor_context(actor)
 
