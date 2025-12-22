@@ -82,7 +82,7 @@ const LinksPage: React.FC = () => {
 
   return (
     <div className="page">
-      <h1>📑 Gestion des Liens de Scraping</h1>
+      <h1>Gestion des Liens de Scraping</h1>
       
       {message && (
         <div className={`message ${message.type}`}>

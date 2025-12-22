@@ -56,7 +56,7 @@ const SemanticAnalysisPage: React.FC = () => {
 
   return (
     <div className="page">
-      <h1>🧠 Analyse Sémantique</h1>
+      <h1>Analyse Sémantique</h1>
       
       <div className="control-panel">
         <button 
@@ -99,8 +99,10 @@ const SemanticAnalysisPage: React.FC = () => {
                   ) : (
                     <ul className="concordance-list">
                       {items.slice(0, 10).map((item: any, idx: number) => (
-                        <li key={idx}>
-                          {item.left} <mark>{item.keyword}</mark> {item.right}
+                        <li key={idx} className="concordance-item">
+                          <span className="left">{item.left}</span>
+                          <span className="kw"><mark>{item.keyword}</mark></span>
+                          <span className="right">{item.right}</span>
                         </li>
                       ))}
                     </ul>
@@ -110,47 +112,49 @@ const SemanticAnalysisPage: React.FC = () => {
             )}
           </div>
 
-          <div className="result-section">
-            <h3>🤝 Word2Vec - Mots Similaires</h3>
-            {results.word2vec_neighbors.length === 0 ? (
-              <p className="info">Aucune donnée Word2Vec disponible. Lancez l'analyse sémantique.</p>
-            ) : (
-              <table>
-                <thead>
-                  <tr><th>Acteur</th><th>Voisin</th><th>Similarité</th></tr>
-                </thead>
-                <tbody>
-                  {results.word2vec_neighbors.slice(0, 30).map((item: any, idx: number) => (
-                    <tr key={idx}>
-                      <td><strong>{item.actor}</strong></td>
-                      <td>{item.neighbor}</td>
-                      <td>{item.similarity?.toFixed(3) || 'N/A'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+          <div className="tables-side-by-side">
+            <div className="result-section compact-table">
+              <h3>Word2Vec - Mots Similaires</h3>
+              {results.word2vec_neighbors.length === 0 ? (
+                <p className="info">Aucune donnée Word2Vec disponible. Lancez l'analyse sémantique.</p>
+              ) : (
+                <table>
+                  <thead>
+                    <tr><th>Acteur</th><th>Voisin</th><th>Similarité</th></tr>
+                  </thead>
+                  <tbody>
+                    {results.word2vec_neighbors.slice(0, 30).map((item: any, idx: number) => (
+                      <tr key={idx}>
+                        <td><strong>{item.actor}</strong></td>
+                        <td>{item.neighbor}</td>
+                        <td>{item.similarity?.toFixed(3) || 'N/A'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
 
-          <div className="result-section">
-            <h3>🗂️ Clusters Sémantiques</h3>
-            {results.clusters.length === 0 ? (
-              <p className="info">Aucun cluster disponible. Lancez l'analyse sémantique.</p>
-            ) : (
-              <table>
-                <thead>
-                  <tr><th>Cluster</th><th>Terme</th></tr>
-                </thead>
-                <tbody>
-                  {results.clusters.slice(0, 50).map((item: any, idx: number) => (
-                    <tr key={idx}>
-                      <td>Cluster {item.cluster}</td>
-                      <td>{item.word}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+            <div className="result-section compact-table">
+              <h3>Clusters Sémantiques</h3>
+              {results.clusters.length === 0 ? (
+                <p className="info">Aucun cluster disponible. Lancez l'analyse sémantique.</p>
+              ) : (
+                <table>
+                  <thead>
+                    <tr><th>Cluster</th><th>Terme</th></tr>
+                  </thead>
+                  <tbody>
+                    {results.clusters.slice(0, 50).map((item: any, idx: number) => (
+                      <tr key={idx}>
+                        <td>Cluster {item.cluster}</td>
+                        <td>{item.word}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
         </>
       )}

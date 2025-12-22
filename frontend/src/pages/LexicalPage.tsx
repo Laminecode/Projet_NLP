@@ -5,7 +5,7 @@ const API_URL = 'http://localhost:8000';
 const LexicalAnalysisPage: React.FC = () => {
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [tab, setTab] = useState<'freq' | 'tfidf' | 'logodds'>('freq');
+  const [tab, setTab] = useState<'freq' | 'tfidf' | 'logodds' | 'bigrams' | 'trigrams'>('freq');
 
   const startAnalysis = () => {
     setLoading(true);
@@ -23,16 +23,26 @@ const LexicalAnalysisPage: React.FC = () => {
 
   const loadResults = () => {
     setLoading(true);
-    fetch(`${API_URL}/api/analysis/lexical/results`)
-      .then(res => res.json())
-      .then(data => {
-        setResults(data.data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
+    // Récupère les résultats principaux puis bigrams/trigrams pour Gaza et Ukraine
+    Promise.all([
+      fetch(`${API_URL}/api/analysis/lexical/results`).then(r => r.json()),
+      fetch(`${API_URL}/api/analysis/lexical/bigrams?corpus=gaza`).then(r => r.json()),
+      fetch(`${API_URL}/api/analysis/lexical/bigrams?corpus=ukraine`).then(r => r.json()),
+      fetch(`${API_URL}/api/analysis/lexical/trigrams?corpus=gaza`).then(r => r.json()),
+      fetch(`${API_URL}/api/analysis/lexical/trigrams?corpus=ukraine`).then(r => r.json())
+    ]).then(([mainRes, gazaBig, ukrBig, gazaTri, ukrTri]) => {
+      const mainData = mainRes.data || {};
+      // Attacher les n-grams
+      mainData.gaza_bigrams = (gazaBig.data) || [];
+      mainData.ukraine_bigrams = (ukrBig.data) || [];
+      mainData.gaza_trigrams = (gazaTri.data) || [];
+      mainData.ukraine_trigrams = (ukrTri.data) || [];
+      setResults(mainData);
+      setLoading(false);
+    }).catch(err => {
+      console.error('Erreur loadResults:', err);
+      setLoading(false);
+    });
   };
 
   useEffect(() => {
@@ -41,7 +51,7 @@ const LexicalAnalysisPage: React.FC = () => {
 
   return (
     <div className="page">
-      <h1>📊 Analyse Lexicale</h1>
+      <h1> Analyse Lexicale</h1>
       
       <div className="control-panel">
         <button onClick={startAnalysis} className="btn-primary">
@@ -74,6 +84,18 @@ const LexicalAnalysisPage: React.FC = () => {
               onClick={() => setTab('logodds')}
             >
               Log-Odds
+            </button>
+            <button 
+              className={tab === 'bigrams' ? 'active' : ''} 
+              onClick={() => setTab('bigrams')}
+            >
+              Bigrams
+            </button>
+            <button 
+              className={tab === 'trigrams' ? 'active' : ''} 
+              onClick={() => setTab('trigrams')}
+            >
+              Trigrams
             </button>
           </div>
 
@@ -189,6 +211,98 @@ const LexicalAnalysisPage: React.FC = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {tab === 'bigrams' && (
+            <div className="results-grid">
+              <div className="result-section">
+                <h3>🇵🇸 Bigrams Gaza</h3>
+                {(!results.gaza_bigrams || results.gaza_bigrams.length === 0) ? (
+                  <p className="info">Aucune donnée disponible. Lancez l'analyse lexicale.</p>
+                ) : (
+                  <table>
+                    <thead>
+                      <tr><th>Bigram</th><th>Count</th></tr>
+                    </thead>
+                    <tbody>
+                      {results.gaza_bigrams.slice(0, 30).map((item: any, idx: number) => (
+                        <tr key={idx}>
+                          <td>{item.term || item["term"] || item.word || '-'}</td>
+                          <td>{item.count ?? item.count_a ?? item.count_b ?? 0}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+
+              <div className="result-section">
+                <h3>🇺🇦 Bigrams Ukraine</h3>
+                {(!results.ukraine_bigrams || results.ukraine_bigrams.length === 0) ? (
+                  <p className="info">Aucune donnée disponible. Lancez l'analyse lexicale.</p>
+                ) : (
+                  <table>
+                    <thead>
+                      <tr><th>Bigram</th><th>Count</th></tr>
+                    </thead>
+                    <tbody>
+                      {results.ukraine_bigrams.slice(0, 30).map((item: any, idx: number) => (
+                        <tr key={idx}>
+                          <td>{item.term || item["term"] || item.word || '-'}</td>
+                          <td>{item.count ?? item.count_a ?? item.count_b ?? 0}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+          )}
+
+          {tab === 'trigrams' && (
+            <div className="results-grid">
+              <div className="result-section">
+                <h3>🇵🇸 Trigrams Gaza</h3>
+                {(!results.gaza_trigrams || results.gaza_trigrams.length === 0) ? (
+                  <p className="info">Aucune donnée disponible. Lancez l'analyse lexicale.</p>
+                ) : (
+                  <table>
+                    <thead>
+                      <tr><th>Trigram</th><th>Count</th></tr>
+                    </thead>
+                    <tbody>
+                      {results.gaza_trigrams.slice(0, 30).map((item: any, idx: number) => (
+                        <tr key={idx}>
+                          <td>{item.term || item["term"] || item.word || '-'}</td>
+                          <td>{item.count ?? 0}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+
+              <div className="result-section">
+                <h3>🇺🇦 Trigrams Ukraine</h3>
+                {(!results.ukraine_trigrams || results.ukraine_trigrams.length === 0) ? (
+                  <p className="info">Aucune donnée disponible. Lancez l'analyse lexicale.</p>
+                ) : (
+                  <table>
+                    <thead>
+                      <tr><th>Trigram</th><th>Count</th></tr>
+                    </thead>
+                    <tbody>
+                      {results.ukraine_trigrams.slice(0, 30).map((item: any, idx: number) => (
+                        <tr key={idx}>
+                          <td>{item.term || item["term"] || item.word || '-'}</td>
+                          <td>{item.count ?? 0}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
             </div>
           )}
         </>

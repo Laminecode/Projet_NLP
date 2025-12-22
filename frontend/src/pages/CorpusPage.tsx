@@ -63,7 +63,7 @@ const CorpusPage: React.FC = () => {
 
   return (
     <div className="page">
-      <h1>📚 Corpus de Textes</h1>
+      <h1> Corpus de Textes</h1>
       
       <div className="control-panel">
         <button 

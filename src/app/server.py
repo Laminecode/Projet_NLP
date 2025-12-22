@@ -24,7 +24,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5174", "http://localhost:3000"],  # Vite et React dev servers
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # Vite et React dev servers
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -73,6 +73,37 @@ def read_csv_to_dict(filepath: str) -> List[Dict]:
         return df.head(100).to_dict('records')  # Limite à 100 lignes pour la performance
     except Exception as e:
         print(f"Erreur lecture CSV {filepath}: {e}")
+        return []
+
+def read_freq_csv(filepath: str) -> List[Dict]:
+    """Lit un CSV de fréquence et normalise les colonnes 'term' et 'count'"""
+    try:
+        if not os.path.exists(filepath):
+            return []
+        df = pd.read_csv(filepath)
+        records = []
+        # parcourir les lignes et normaliser
+        for _, row in df.head(100).iterrows():
+            term = None
+            count = None
+            for c in ['word', 'term', 'token']:
+                if c in row.index and pd.notna(row[c]):
+                    term = str(row[c])
+                    break
+            for c in ['count', 'frequency', 'freq']:
+                if c in row.index and pd.notna(row[c]):
+                    try:
+                        count = int(row[c])
+                    except Exception:
+                        try:
+                            count = int(float(row[c]))
+                        except Exception:
+                            count = row[c]
+                    break
+            records.append({'term': term or '', 'count': count or 0})
+        return records
+    except Exception as e:
+        print(f"Erreur lecture CSV fréquence {filepath}: {e}")
         return []
 
 def read_json_file(filepath: str) -> Dict:
@@ -269,12 +300,68 @@ async def get_lexical_results():
         "ukraine_wordfreq": read_freq_csv("results/statistics/ukraine_wordfreq.csv"),
         "logodds_top": read_csv_to_dict("results/statistics/gaza_vs_ukraine_logodds_top200.csv"),
         "logodds_bottom": read_csv_to_dict("results/statistics/gaza_vs_ukraine_logodds_bottom200.csv"),
+        "logodds_full": read_csv_to_dict("results/statistics/gaza_vs_ukraine_logodds_full.csv"),
         "tfidf_gaza": read_csv_to_dict("results/statistics/tfidf_gaza.csv"),
         "tfidf_ukraine": read_csv_to_dict("results/statistics/tfidf_ukraine.csv"),
         "article_stats": read_csv_to_dict("results/statistics/article_stats.csv")
     }
-    
+
     return {"status": "success", "data": results}
+
+
+@app.get("/api/analysis/lexical/bigrams")
+async def get_bigrams(corpus: str = "gaza"):
+    """Retourne les bigrams pour le corpus demandé (gaza|ukraine)"""
+    if corpus not in ["gaza", "ukraine"]:
+        raise HTTPException(status_code=400, detail="Corpus invalide. Utilisez 'gaza' ou 'ukraine'")
+    path = f"results/statistics/{corpus}_bigrams.csv"
+    data = read_csv_to_dict(path)
+    return {"status": "success", "data": data}
+
+
+@app.get("/api/analysis/lexical/trigrams")
+async def get_trigrams(corpus: str = "gaza"):
+    """Retourne les trigrams pour le corpus demandé (gaza|ukraine)"""
+    if corpus not in ["gaza", "ukraine"]:
+        raise HTTPException(status_code=400, detail="Corpus invalide. Utilisez 'gaza' ou 'ukraine'")
+    path = f"results/statistics/{corpus}_trigrams.csv"
+    data = read_csv_to_dict(path)
+    return {"status": "success", "data": data}
+
+
+@app.get("/api/analysis/lexical/tfidf")
+async def get_tfidf(corpus: str = "gaza"):
+    """Retourne le TF-IDF pour le corpus demandé (tfidf_gaza.csv / tfidf_ukraine.csv)"""
+    if corpus not in ["gaza", "ukraine"]:
+        raise HTTPException(status_code=400, detail="Corpus invalide. Utilisez 'gaza' ou 'ukraine'")
+    path = f"results/statistics/tfidf_{corpus}.csv"
+    data = read_csv_to_dict(path)
+    return {"status": "success", "data": data}
+
+
+@app.get("/api/analysis/lexical/wordfreq")
+async def get_wordfreq(corpus: str = "gaza"):
+    """Retourne la fréquence des mots pour le corpus demandé"""
+    if corpus not in ["gaza", "ukraine"]:
+        raise HTTPException(status_code=400, detail="Corpus invalide. Utilisez 'gaza' ou 'ukraine'")
+    path = f"results/statistics/{corpus}_wordfreq.csv"
+    data = read_freq_csv(path)
+    return {"status": "success", "data": data}
+
+
+@app.get("/api/analysis/lexical/logodds")
+async def get_logodds(variant: str = "top200"):
+    """Retourne les résultats log-odds. Paramètre 'variant' : top200|bottom200|full"""
+    mapping = {
+        "top200": "results/statistics/gaza_vs_ukraine_logodds_top200.csv",
+        "bottom200": "results/statistics/gaza_vs_ukraine_logodds_bottom200.csv",
+        "full": "results/statistics/gaza_vs_ukraine_logodds_full.csv"
+    }
+    if variant not in mapping:
+        raise HTTPException(status_code=400, detail="Variant invalide. Choisir: top200, bottom200, full")
+    path = mapping[variant]
+    data = read_csv_to_dict(path)
+    return {"status": "success", "data": data}
 
 @app.get("/api/analysis/lexical/actor/{actor}")
 async def get_actor_analysis(actor: str, corpus: str = "gaza"):
