@@ -5,7 +5,11 @@ const API_URL = 'http://localhost:8000';
 const LexicalAnalysisPage: React.FC = () => {
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [tab, setTab] = useState<'freq' | 'tfidf' | 'logodds' | 'bigrams' | 'trigrams'>('freq');
+  const [tab, setTab] = useState<'freq' | 'tfidf' | 'logodds' | 'bigrams' | 'trigrams' | 'actor'>('freq');
+  const [actor, setActor] = useState<'israel' | 'palestin' | 'russia' | 'ukraine'>('israel');
+  const [statType, setStatType] = useState<'context' | 'adjectives' | 'nouns' | 'verbs'>('context');
+  const [actorDataGaza, setActorDataGaza] = useState<any>(null);
+  const [actorDataUkraine, setActorDataUkraine] = useState<any>(null);
 
   const startAnalysis = () => {
     setLoading(true);
@@ -19,6 +23,29 @@ const LexicalAnalysisPage: React.FC = () => {
         alert('Erreur: ' + err.message);
         setLoading(false);
       });
+  };
+
+  const loadActorData = (actorToLoad: string, corpusToLoad: 'gaza' | 'ukraine') => {
+    return fetch(`${API_URL}/api/analysis/lexical/actor/${actorToLoad}?corpus=${corpusToLoad}`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.status === 'success') return d.data || null;
+        console.error('Erreur chargement acteur:', d);
+        return null;
+      })
+      .catch(e => {
+        console.error('Erreur fetch actor:', e);
+        return null;
+      });
+  };
+
+  const loadActorBoth = async (actorToLoad = actor) => {
+    const [gazaData, ukrData] = await Promise.all([
+      loadActorData(actorToLoad, 'gaza'),
+      loadActorData(actorToLoad, 'ukraine')
+    ]);
+    setActorDataGaza(gazaData);
+    setActorDataUkraine(ukrData);
   };
 
   const loadResults = () => {
@@ -96,6 +123,12 @@ const LexicalAnalysisPage: React.FC = () => {
               onClick={() => setTab('trigrams')}
             >
               Trigrams
+            </button>
+            <button 
+              className={tab === 'actor' ? 'active' : ''} 
+              onClick={() => setTab('actor')}
+            >
+              Acteurs
             </button>
           </div>
 
@@ -226,7 +259,7 @@ const LexicalAnalysisPage: React.FC = () => {
                       <tr><th>Bigram</th><th>Count</th></tr>
                     </thead>
                     <tbody>
-                      {results.gaza_bigrams.slice(0, 30).map((item: any, idx: number) => (
+                      {results.gaza_bigrams.map((item: any, idx: number) => (
                         <tr key={idx}>
                           <td>{item.term || item["term"] || item.word || '-'}</td>
                           <td>{item.count ?? item.count_a ?? item.count_b ?? 0}</td>
@@ -247,7 +280,7 @@ const LexicalAnalysisPage: React.FC = () => {
                       <tr><th>Bigram</th><th>Count</th></tr>
                     </thead>
                     <tbody>
-                      {results.ukraine_bigrams.slice(0, 30).map((item: any, idx: number) => (
+                      {results.ukraine_bigrams.map((item: any, idx: number) => (
                         <tr key={idx}>
                           <td>{item.term || item["term"] || item.word || '-'}</td>
                           <td>{item.count ?? item.count_a ?? item.count_b ?? 0}</td>
@@ -272,7 +305,7 @@ const LexicalAnalysisPage: React.FC = () => {
                       <tr><th>Trigram</th><th>Count</th></tr>
                     </thead>
                     <tbody>
-                      {results.gaza_trigrams.slice(0, 30).map((item: any, idx: number) => (
+                      {results.gaza_trigrams.map((item: any, idx: number) => (
                         <tr key={idx}>
                           <td>{item.term || item["term"] || item.word || '-'}</td>
                           <td>{item.count ?? 0}</td>
@@ -293,7 +326,7 @@ const LexicalAnalysisPage: React.FC = () => {
                       <tr><th>Trigram</th><th>Count</th></tr>
                     </thead>
                     <tbody>
-                      {results.ukraine_trigrams.slice(0, 30).map((item: any, idx: number) => (
+                      {results.ukraine_trigrams.map((item: any, idx: number) => (
                         <tr key={idx}>
                           <td>{item.term || item["term"] || item.word || '-'}</td>
                           <td>{item.count ?? 0}</td>
@@ -303,7 +336,173 @@ const LexicalAnalysisPage: React.FC = () => {
                   </table>
                 )}
               </div>
+
+              
             </div>
+          )}
+          {tab === 'actor' && (
+            <div className="result-section">
+                <h3>Statistiques par Acteur</h3>
+                <div style={{display: 'flex', gap: '8px', alignItems: 'center', margin: '0 auto 8px', flexWrap: 'wrap', justifyContent: 'flex-start', maxWidth: '900px'}}>
+                  <label style={{fontWeight:600}}>Acteur:</label>
+                  <select value={actor} onChange={(e) => setActor(e.target.value as any)}>
+                    <option value="israel">Israel</option>
+                    <option value="palestin">Palestin</option>
+                    <option value="russia">Russia</option>
+                    <option value="ukraine">Ukraine</option>
+                  </select>
+
+                  <label style={{fontWeight:600}}>Stat:</label>
+                  <select value={statType} onChange={(e) => setStatType(e.target.value as any)}>
+                    <option value="context">Context</option>
+                    <option value="adjectives">Adjectives</option>
+                    <option value="nouns">Nouns</option>
+                    <option value="verbs">Verbs</option>
+                  </select>
+
+                  <button className="btn-secondary" onClick={() => loadActorBoth(actor)}>Charger</button>
+                </div>
+
+                <div style={{display: 'flex', gap: '12px'}}>
+                  <div style={{flex: 1}}>
+                    <h4><strong>🇵🇸 Gaza</strong></h4>
+                    {actorDataGaza === null ? (
+                      <p className="info">Aucun données Gaza chargées</p>
+                    ) : (
+                      <div>
+                        {statType === 'context' && (
+                          <>
+                            <h5>Contexte </h5>
+                            {Array.isArray(actorDataGaza.context) && actorDataGaza.context.length > 0 ? (
+                              <div className="actor-table actor-table-gaza">
+                                <table>
+                                  <thead><tr><th>Term</th><th>Count</th></tr></thead>
+                                  <tbody>
+                                    {actorDataGaza.context.map((row: any, i: number) => (
+                                      <tr key={i}><td>{row.token ?? row.term ?? row.left ?? ''}</td><td>{row.count ?? row.frequency ?? 0}</td></tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            ) : <p className="info">Aucun contexte Gaza</p>}
+                          </>
+                        )}
+
+                        {statType === 'adjectives' && (
+                          <>
+                            <h5>Adjectives </h5>
+                            {Array.isArray(actorDataGaza.adjectives) && actorDataGaza.adjectives.length > 0 ? (
+                              <div className="actor-table actor-table-gaza">
+                                <table>
+                                  <thead><tr><th>Token</th><th>Count</th></tr></thead>
+                                  <tbody>{actorDataGaza.adjectives.map((r: any,i:number)=>(<tr key={i}><td>{r.token??r.term}</td><td>{r.count??r.frequency??0}</td></tr>))}</tbody>
+                                </table>
+                              </div>
+                            ) : <p className="info">Aucun adjectif Gaza</p>}
+                          </>
+                        )}
+
+                        {statType === 'nouns' && (
+                          <>
+                            <h5>Noms </h5>
+                            {Array.isArray(actorDataGaza.nouns) && actorDataGaza.nouns.length > 0 ? (
+                              <div className="actor-table actor-table-gaza">
+                                <table>
+                                  <thead><tr><th>Token</th><th>Count</th></tr></thead>
+                                  <tbody>{actorDataGaza.nouns.map((r: any,i:number)=>(<tr key={i}><td>{r.token??r.term??r.word}</td><td>{r.count??r.frequency??0}</td></tr>))}</tbody>
+                                </table>
+                              </div>
+                            ) : <p className="info">Aucun nom Gaza</p>}
+                          </>
+                        )}
+
+                        {statType === 'verbs' && (
+                          <>
+                            <h5>Verbs </h5>
+                            {Array.isArray(actorDataGaza.verbs) && actorDataGaza.verbs.length > 0 ? (
+                              <div className="actor-table actor-table-gaza">
+                                <table>
+                                  <thead><tr><th>Token</th><th>Count</th></tr></thead>
+                                  <tbody>{actorDataGaza.verbs.map((r: any,i:number)=>(<tr key={i}><td>{r.token??r.term??r.word}</td><td>{r.count??r.frequency??0}</td></tr>))}</tbody>
+                                </table>
+                              </div>
+                            ) : <p className="info">Aucun verbe Gaza</p>}
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{flex: 1}}>
+                    <h4><strong>🇺🇦 Ukraine</strong></h4>
+                    {actorDataUkraine === null ? (
+                      <p className="info">Aucun données Ukraine chargées</p>
+                    ) : (
+                      <div>
+                        {statType === 'context' && (
+                          <>
+                            <h5>Contexte </h5>
+                            {Array.isArray(actorDataUkraine.context) && actorDataUkraine.context.length > 0 ? (
+                              <div className="actor-table actor-table-ukraine">
+                                <table>
+                                  <thead><tr><th>Term</th><th>Count</th></tr></thead>
+                                  <tbody>
+                                    {actorDataUkraine.context.map((row: any, i: number) => (
+                                      <tr key={i}><td>{row.token ?? row.term ?? row.left ?? ''}</td><td>{row.count ?? row.frequency ?? 0}</td></tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            ) : <p className="info">Aucun contexte Ukraine</p>}
+                          </>
+                        )}
+
+                        {statType === 'adjectives' && (
+                          <>
+                            <h5>Adjectives </h5>
+                            {Array.isArray(actorDataUkraine.adjectives) && actorDataUkraine.adjectives.length > 0 ? (
+                              <div className="actor-table actor-table-ukraine">
+                                <table>
+                                  <thead><tr><th>Token</th><th>Count</th></tr></thead>
+                                  <tbody>{actorDataUkraine.adjectives.map((r: any,i:number)=>(<tr key={i}><td>{r.token??r.term}</td><td>{r.count??r.frequency??0}</td></tr>))}</tbody>
+                                </table>
+                              </div>
+                            ) : <p className="info">Aucun adjectif Ukraine</p>}
+                          </>
+                        )}
+
+                        {statType === 'nouns' && (
+                          <>
+                            <h5>Noms </h5>
+                            {Array.isArray(actorDataUkraine.nouns) && actorDataUkraine.nouns.length > 0 ? (
+                              <div className="actor-table actor-table-ukraine">
+                                <table>
+                                  <thead><tr><th>Token</th><th>Count</th></tr></thead>
+                                  <tbody>{actorDataUkraine.nouns.map((r: any,i:number)=>(<tr key={i}><td>{r.token??r.term??r.word}</td><td>{r.count??r.frequency??0}</td></tr>))}</tbody>
+                                </table>
+                              </div>
+                            ) : <p className="info">Aucun nom Ukraine</p>}
+                          </>
+                        )}
+
+                        {statType === 'verbs' && (
+                          <>
+                            <h5>Verbs </h5>
+                            {Array.isArray(actorDataUkraine.verbs) && actorDataUkraine.verbs.length > 0 ? (
+                              <div className="actor-table actor-table-ukraine">
+                                <table>
+                                  <thead><tr><th>Token</th><th>Count</th></tr></thead>
+                                  <tbody>{actorDataUkraine.verbs.map((r: any,i:number)=>(<tr key={i}><td>{r.token??r.term??r.word}</td><td>{r.count??r.frequency??0}</td></tr>))}</tbody>
+                                </table>
+                              </div>
+                            ) : <p className="info">Aucun verbe Ukraine</p>}
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
           )}
         </>
       )}

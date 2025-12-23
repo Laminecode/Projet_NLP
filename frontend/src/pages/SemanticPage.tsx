@@ -32,7 +32,63 @@ const SemanticAnalysisPage: React.FC = () => {
       .then(res => res.json())
       .then(data => {
         if (data.status === 'success') {
-          setResults(data.data);
+          // Normalize and group clusters so the UI shows each cluster with its words
+          const payload = data.data || {};
+          const raw = payload.clusters || [];
+
+          const groups: Record<string, Set<string>> = {};
+
+          const addWord = (clusterKey: any, word: string) => {
+            const key = String(clusterKey ?? '');
+            if (!groups[key]) groups[key] = new Set();
+            if (word && typeof word === 'string') groups[key].add(word.trim());
+          };
+
+          if (!Array.isArray(raw) && typeof raw === 'object') {
+            // mapping like { '2': 'w1, w2' } or { '2': ['w1','w2'] }
+            Object.entries(raw).forEach(([k, v]) => {
+              if (typeof v === 'string') {
+                v.split(',').map(s => s.trim()).filter(Boolean).forEach(w => addWord(k, w));
+              } else if (Array.isArray(v)) {
+                v.forEach(w => addWord(k, String(w)));
+              }
+            });
+          } else if (Array.isArray(raw)) {
+            raw.forEach((r: any) => {
+              if (!r) return;
+
+              // Exploded form: {cluster, word}
+              if (r.cluster !== undefined && r.word !== undefined) {
+                addWord(r.cluster, String(r.word));
+                return;
+              }
+
+              // CSV rows: {cluster_id, keywords}
+              const cid = r.cluster_id ?? r.cluster ?? r.clusterId ?? r.clusterId;
+              const keywords = r.keywords ?? r.words ?? r.keyword;
+              if (typeof keywords === 'string') {
+                keywords.split(',').map((s: string) => s.trim()).filter(Boolean).forEach((w: string) => addWord(cid, w));
+                return;
+              }
+
+              // rows like {cluster: 2, words: ['a','b']}
+              if (cid !== undefined && Array.isArray(r.words)) {
+                r.words.forEach((w: any) => addWord(cid, String(w)));
+                return;
+              }
+            });
+          }
+
+          const clustered = Object.entries(groups).map(([cluster, set]) => ({
+            cluster: isNaN(Number(cluster)) ? cluster : Number(cluster),
+            words: Array.from(set)
+          })).sort((a: any, b: any) => {
+            // sort numerically when possible
+            if (typeof a.cluster === 'number' && typeof b.cluster === 'number') return a.cluster - b.cluster;
+            return String(a.cluster).localeCompare(String(b.cluster));
+          });
+
+          setResults({ ...payload, clusters: clustered });
         } else {
           console.error('Erreur lors du chargement:', data);
         }
@@ -140,19 +196,33 @@ const SemanticAnalysisPage: React.FC = () => {
               {results.clusters.length === 0 ? (
                 <p className="info">Aucun cluster disponible. Lancez l'analyse sémantique.</p>
               ) : (
-                <table>
-                  <thead>
-                    <tr><th>Cluster</th><th>Terme</th></tr>
-                  </thead>
-                  <tbody>
-                    {results.clusters.slice(0, 50).map((item: any, idx: number) => (
-                      <tr key={idx}>
-                        <td>Cluster {item.cluster}</td>
-                        <td>{item.word}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div>
+                  <p className="info">Affiche chaque cluster avec sa liste de termes (tous les clusters).</p>
+                  <table>
+                    <thead>
+                      <tr><th>Cluster</th><th>Termes</th></tr>
+                    </thead>
+                    <tbody>
+                      {results.clusters.map((c: any, idx: number) => (
+                        <tr key={idx}>
+                          <td><strong>Cluster {c.cluster}</strong></td>
+                          <td>
+                            {Array.isArray(c.words) ? (
+                              <details>
+                                <summary>{c.words.slice(0, 10).join(', ')}{c.words.length > 10 ? ` (+${c.words.length - 10})` : ''}</summary>
+                                <ul>
+                                  {c.words.map((w: string, i: number) => <li key={i}>{w}</li>)}
+                                </ul>
+                              </details>
+                            ) : (
+                              String(c.words || c.word || '')
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           </div>

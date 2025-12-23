@@ -227,7 +227,7 @@ async def start_scraping(background_tasks: BackgroundTasks):
     }
 
 @app.get("/api/corpus/texts")
-async def get_corpus_texts(corpus: str = "gaza", limit: int = 10):
+async def get_corpus_texts(corpus: str = "gaza", limit: int = 10, offset: int = 0):
     if corpus not in ["gaza", "ukraine"]:
         raise HTTPException(status_code=400, detail="Corpus invalide")
     
@@ -237,9 +237,12 @@ async def get_corpus_texts(corpus: str = "gaza", limit: int = 10):
         return {"status": "success", "data": {"texts": [], "total": 0}}
     
     files = [f for f in os.listdir(corpus_dir) if f.endswith('.txt') and f != '_stats.json']
+    files = sorted(files)
+    if offset < 0:
+        offset = 0
     texts = []
     
-    for i, filename in enumerate(files[:limit]):
+    for i, filename in enumerate(files[offset: offset + limit]):
         try:
             with open(os.path.join(corpus_dir, filename), 'r', encoding='utf-8') as f:
                 content = f.read()
@@ -257,7 +260,9 @@ async def get_corpus_texts(corpus: str = "gaza", limit: int = 10):
         "data": {
             "texts": texts,
             "total": len(files),
-            "showing": len(texts)
+            "showing": len(texts),
+            "offset": offset,
+            "limit": limit
         }
     }
 
