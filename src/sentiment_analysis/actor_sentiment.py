@@ -1,3 +1,4 @@
+# src/sentiment_analysis/actor_sentiment.py
 from nltk.sentiment import SentimentIntensityAnalyzer
 import nltk
 

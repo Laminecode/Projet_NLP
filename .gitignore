@@ -3,7 +3,11 @@ data/raw/
 data/raw_text/
 data/test_data/ 
 results/
-
+src\lexicale_analysis\__pycache__\
+src\preprocessing\__pycache__\
+src\scraping\__pycache__\
+src\semantic_analysis\__pycache__\
+src\sentiment_analysis\__pycache__\
 
 # ==================== Python ====================
 # Bytecode
@@ -124,23 +128,7 @@ $RECYCLE.BIN/
 *~
 .directory
 
-# ==================== Data & Results (GROS FICHIERS) ====================
-# Données brutes (peuvent être régénérées par scraping)
-data/raw/**/*.json
-data/raw_text/**/*.txt
-data/processed_clean/**/*.txt
 
-# IMPORTANT: Garder les statistiques
-!data/raw_text/**/_stats.json
-
-# Résultats d'analyse (peuvent être régénérés)
-results/**/*.csv
-results/**/*.json
-results/**/*.png
-results/**/*.jpg
-
-# EXCEPTION: Garder un exemple de résultats (optionnel)
-# !results/statistics/summary.json
 
 # ==================== Modèles & Embeddings ====================
 # Modèles Word2Vec (très lourds)
@@ -166,50 +154,5 @@ temp/
 *.bak
 *.backup
 
-# ==================== Database ====================
-*.db
-*.sqlite
-*.sqlite3
 
-# ==================== Jupyter ====================
-.ipynb_checkpoints/
-*.ipynb_checkpoints
 
-# ==================== Spacy ====================
-# Modèles Spacy (à télécharger via spacy download)
-# Ne pas commit les modèles, documenter comment les télécharger
-
-# ==================== Secrets ====================
-# API Keys
-.env
-.env.local
-secrets.json
-config.json
-credentials.json
-
-# ==================== Package managers ====================
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
-# ==================== Build artifacts ====================
-*.pyc
-*.pyo
-*.pyd
-.Python
-
-# ==================== Coverage ====================
-.coverage
-htmlcov/
-
-# ==================== Documentation build ====================
-docs/_build/
-site/
-
-# ==================== Large files warning ====================
-# Si vous voulez commiter des exemples de données:
-# 1. Créez un dossier data/samples/
-# 2. Mettez quelques fichiers légers (< 1MB)
-# 3. Ajoutez une exception ici:
-# !data/samples/*.txt
-mon_env310/

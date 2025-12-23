@@ -3,11 +3,11 @@ import os
 from pathlib import Path
 import argparse
 
-from src.lexicale_analysis.load_data import load_corpus_texts, save_json, save_csv_rows
-from src.lexicale_analysis.frequency import compute_and_save_all, actor_term_contexts, get_word_counts
-from src.lexicale_analysis.lexical_stats import article_stats, save_article_stats, actor_pos_contexts
-from src.lexicale_analysis.tfidf import compute_tfidf_for_corpus, top_terms_per_corpus, save_tfidf_terms
-from src.lexicale_analysis.similarity import compute_cosine_similarity, save_similarity_matrix, build_cooccurrence
+from load_data import load_corpus_texts, save_json, save_csv_rows
+from frequency import compute_and_save_all, actor_term_contexts, get_word_counts
+from lexical_stats import article_stats, save_article_stats, actor_pos_contexts
+from tfidf import compute_tfidf_for_corpus, top_terms_per_corpus, save_tfidf_terms
+from similarity import compute_cosine_similarity, save_similarity_matrix, build_cooccurrence, build_actor_cooccurrence
 import numpy as np
 import pandas as pd
 from collections import Counter
@@ -159,6 +159,15 @@ def run_all(data_base: str = "data/processed_clean"):
     }
     save_json(summary, os.path.join(STATS_DIR, "summary.json"))
     print("All done. Results in:", STATS_DIR)
+
+    #build corpus cooccurrence networks for key actors
+    for actor_key, lemmas in actors.items():
+        for cat, docs in corpora.items():
+            if not docs: continue
+            co_actor = build_actor_cooccurrence(docs, lemmas, window=5)
+            # save results
+            rows = [{"actor_lemma": a, "context_word": b, "count": c} for (a,b),c in co_actor.items()]
+            save_csv_rows(os.path.join(STATS_DIR, f"{cat}_actor_{actor_key}_cooccurrence.csv"), ["actor_lemma","context_word","count"], rows)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run lexical analysis pipeline (integrated)")

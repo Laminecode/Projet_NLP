@@ -2,8 +2,8 @@ import os
 import json
 import hashlib
 from glob import glob
-from src.scraping.scrape_ukrain import main_ukrain
-from src.scraping.scrape_gaza import (main_gaza)
+from scrape_ukrain import main_ukrain
+from scrape_gaza import main_gaza
 
 RAW_BASE = "data/raw"
 OUT_BASE = "data/raw_text"
@@ -82,10 +82,18 @@ def process_category(cat):
     return stats
 
 def main():
-    main_gaza()
-    main_ukrain()
+    result_g = main_gaza()
+    result_u = main_ukrain()
     process_category("gaza")
     process_category("ukraine")
+    #save overall stats
+    overall_stats = {
+        "gaza": result_g,
+        "ukraine": result_u 
+    }
+    with open(os.path.join(OUT_BASE, "_overall_stats.json"), "w") as f:
+        json.dump(overall_stats, f, indent=2)
+
     print("[DONE] Corpus built!")
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
-from src.preprocessing.clean_text import clean_text
-from src.preprocessing.normalize import normalize_text
-from src.preprocessing.lemmatization import lemmatize_tokens
+from clean_text import clean_text
+from normalize import normalize_text
+from lemmatization import lemmatize_tokens
 
 def preprocess_pipeline(text, language='english'):
     """

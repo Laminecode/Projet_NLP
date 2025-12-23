@@ -63,6 +63,36 @@ def plot_tfidf():
             filename=f"{corpus}_tfidf.png"
         )
 
+# Graphique TF-IDF comparatif Gaza vs Ukraine
+def plot_tfidf_comparative():
+    print("[INFO] Plotting comparative TF-IDF...")
+
+    path_gaza = os.path.join(STATS_DIR, "tfidf_gaza.csv")
+    path_ukraine = os.path.join(STATS_DIR, "tfidf_ukraine.csv")
+    if not os.path.exists(path_gaza) or not os.path.exists(path_ukraine):
+        return
+    
+    df_gaza = pd.read_csv(path_gaza).head(20)  # Top 20 termes
+    df_ukraine = pd.read_csv(path_ukraine).head(20)
+    df_gaza['corpus'] = 'Gaza'
+    df_ukraine['corpus'] = 'Ukraine'
+   
+    df_gaza = df_gaza.rename(columns={'score': 'tfidf_score'})
+    df_ukraine = df_ukraine.rename(columns={'score': 'tfidf_score'})
+
+    df_combined = pd.concat([df_gaza, df_ukraine], ignore_index=True)
+   
+    plt.figure(figsize=(12, 8))
+    sns.barplot(data=df_combined, y='term', x='tfidf_score', hue='corpus', 
+                palette=['#e74c3c', '#3498db'])
+    plt.title("Comparative TF-IDF Terms – Gaza vs Ukraine", fontsize=14, fontweight='bold')
+    plt.xlabel("TF-IDF Score", fontsize=12)
+    plt.ylabel("Term", fontsize=12)
+    plt.legend(title='Corpus', fontsize=10)
+    plt.tight_layout()
+    plt.savefig(os.path.join(FIGS_DIR, "tfidf_gaza_vs_ukraine.png"), dpi=200)
+    plt.close()
+
 
 def plot_logodds():
     print("[INFO] Plotting log-odds comparison...")
@@ -113,17 +143,61 @@ def plot_actor_context(actor):
             filename=f"{corpus}_{actor}_context.png"
         )
 
+# figure Réseau de cooccurrences pour acteurs clés and save figure
+def plot_actor_cooccurrences(actor):
+    print(f"[INFO] Plotting actor co-occurrences: {actor}")
+
+    for corpus in ["gaza", "ukraine"]:
+        path = os.path.join(
+            STATS_DIR, f"{corpus}_actor_{actor}_cooccurrences.csv"
+        )
+        if not os.path.exists(path):
+            continue
+
+        df = pd.read_csv(path)
+        barplot(
+            df,
+            x="count",
+            y="term",
+            title=f"Co-occurrences with '{actor}' – {corpus.capitalize()}",
+            filename=f"{corpus}_{actor}_cooccurrences.png"
+        )
+
+def plot_distinctive_terms(csv_file, title, out_png, top_n=20):
+    df = pd.read_csv(csv_file)
+
+    # on prend les termes les plus distinctifs
+    df = df.sort_values("z", ascending=False).head(top_n)
+
+    plt.figure(figsize=(7, 5))
+    plt.barh(df["term"], df["z"])
+    plt.axvline(0, linestyle="--")
+
+    plt.xlabel("Log-odds z-score")
+    plt.title(title)
+
+    plt.gca().invert_yaxis()
+    plt.tight_layout()
+    plt.savefig(out_png)
+    plt.close()
+
 
 # ------------------ MAIN ------------------
 def main():
-    plot_word_frequencies()
-    plot_tfidf()
-    plot_logodds()
+    # plot_word_frequencies()
+    # plot_tfidf()
+    # plot_logodds()
+    # plot_tfidf_comparative()
+    plot_distinctive_terms(
+        "results/statistics/gaza_vs_ukraine_logodds_top200.csv",
+        "Top Distinctive Terms: Gaza vs Ukraine",
+        "results/figures/distinctive_terms_gaza_ukraine.png"
+    )
 
-    # Actors (adapt to your project)
-    for actor in ["israel", "palestin", "ukraine", "russia"]:
-        plot_actor_context(actor)
-
+    # # Actors (adapt to your project)
+    # for actor in ["israel", "palestin", "ukraine", "russia"]:
+    #     plot_actor_context(actor)
+    #     plot_actor_cooccurrences(actor)
     print("[DONE] All figures generated in results/figures/")
 
 

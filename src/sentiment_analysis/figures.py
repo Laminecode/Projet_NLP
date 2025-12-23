@@ -1,3 +1,4 @@
+# src/sentiment_analysis/figures.py
 import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
@@ -47,7 +48,16 @@ def plot_victim_mean(csv_file):
     plt.axhline(0, linestyle="--")
 
     plt.ylabel("Mean compound score")
-    plt.title("Average sentiment for civilian victims")
+    plt.title("Average sentiment for civilian victims (civilian, child, death, wounded, ...)")
+    #definier les victims
+    # VICTIM_TERMS = {
+    # "civilian", "civilians",
+    # "child", "children",
+    # "kill", "killed", "dead",
+    # "death", "die",
+    # "wound", "wounded",
+    # "casualty", "victim", "victims"
+    # }
 
     plt.tight_layout()
     plt.savefig(f"{FIG_DIR}/sentiment_victims_mean.png")
@@ -66,7 +76,7 @@ def plot_gaza_vs_ukraine_mean(gaza_csv, ukraine_csv):
     plt.axhline(0, linestyle="--")
 
     plt.ylabel("Mean compound sentiment")
-    plt.title("Average sentiment comparison (Victims)")
+    plt.title("Average sentiment comparison for victims (civilians, children, deaths, wounded, ...)")
 
     plt.tight_layout()
     plt.savefig("results/figures_sentiment/gaza_vs_ukraine_victims_mean.png")
@@ -95,3 +105,5 @@ def plot_sentiment_heatmap(csv_file, title, out_png):
     plt.tight_layout()
     plt.savefig(out_png)
     plt.close()
+
+

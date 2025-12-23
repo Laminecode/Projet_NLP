@@ -4,7 +4,7 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
-from src.preprocessing.pipeline import preprocess_to_string
+from pipeline import preprocess_to_string
 
 def process_category(cat, raw_base="data/raw_text", out_base="data/processed_clean"):
     """

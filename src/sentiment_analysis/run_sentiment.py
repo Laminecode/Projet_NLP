@@ -1,9 +1,10 @@
+# src/sentiment_analysis/run_sentiment.py
 from pathlib import Path
 import csv
 
-from src.sentiment.load_data import load_corpus_texts
-from src.sentiment.victim_sentiment import extract_victim_sentiment
-from src.sentiment.actor_sentiment import extract_actor_sentiment
+from load_data import load_corpus_texts
+from victim_sentiment import extract_victim_sentiment
+from actor_sentiment import extract_actor_sentiment
 
 OUT = "results/sentiment"
 
@@ -56,5 +57,6 @@ if __name__ == "__main__":
 
     plot_gaza_vs_ukraine_mean("results/sentiment/gaza_victims_sentiment.csv",
                               "results/sentiment/ukraine_victims_sentiment.csv")
+
 
     print("[OK] Sentiment figures generated.")

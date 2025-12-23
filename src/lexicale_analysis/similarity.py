@@ -49,3 +49,21 @@ def build_cooccurrence(docs: Dict[str, str], vocab_set:set=None, window:int=5):
                 co[pair] += 1
     return co, unigram
 
+#Réseau de cooccurrences pour acteurs clés
+def build_actor_cooccurrence(docs: Dict[str, str], actor_lemmas: List[str], window:int=5):
+    """
+    Build cooccurrence counts for given actor lemmas.
+    Returns (co_counts: dict[(actor_lemma, context_word)]->count)
+    """
+    co = defaultdict(int)
+    for txt in docs.values():
+        tokens = [t for t in txt.split() if t]
+        L = len(tokens)
+        for i,t in enumerate(tokens):
+            if t in actor_lemmas:
+                start = max(0, i-window); end = min(L, i+window+1)
+                for j in range(start, end):
+                    if i == j: continue
+                    pair = (t, tokens[j])
+                    co[pair] += 1
+    return co
