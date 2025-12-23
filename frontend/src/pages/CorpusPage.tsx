@@ -16,6 +16,8 @@ const CorpusPage: React.FC = () => {
   });
   const [corpusData, setCorpusData] = useState<any>(null);
   const [selectedCorpus, setSelectedCorpus] = useState<'gaza' | 'ukraine'>('gaza');
+  const [perPage, setPerPage] = useState<number>(20);
+  const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState(false);
 
   const checkStatus = () => {
@@ -27,7 +29,8 @@ const CorpusPage: React.FC = () => {
 
   const loadCorpusTexts = (corpus: 'gaza' | 'ukraine') => {
     setLoading(true);
-    fetch(`${API_URL}/api/corpus/texts?corpus=${corpus}&limit=20`)
+    const offset = (page - 1) * perPage;
+    fetch(`${API_URL}/api/corpus/texts?corpus=${corpus}&limit=${perPage}&offset=${offset}`)
       .then(res => res.json())
       .then(data => {
         setCorpusData(data.data);
@@ -47,8 +50,15 @@ const CorpusPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    // Reset to first page when switching corpora
+    setPage(1);
     loadCorpusTexts(selectedCorpus);
   }, [selectedCorpus]);
+
+  useEffect(() => {
+    // reload when page or perPage changes
+    loadCorpusTexts(selectedCorpus);
+  }, [page, perPage]);
 
   const startScraping = () => {
     fetch(`${API_URL}/api/scraping/start`, { method: 'POST' })
@@ -63,7 +73,7 @@ const CorpusPage: React.FC = () => {
 
   return (
     <div className="page">
-      <h1>📚 Corpus de Textes</h1>
+      <h1> Corpus de Textes</h1>
       
       <div className="control-panel">
         <button 
@@ -82,9 +92,34 @@ const CorpusPage: React.FC = () => {
           <option value="ukraine">🇺🇦 Corpus Ukraine</option>
         </select>
         
-        <button onClick={() => loadCorpusTexts(selectedCorpus)} className="btn-secondary">
+        <button onClick={() => { setPage(1); loadCorpusTexts(selectedCorpus); }} className="btn-secondary">
           🔄 Actualiser
         </button>
+
+        <div className="pagination-controls">
+          <button
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            className="btn-secondary"
+            disabled={page <= 1}
+          >
+            Précédent
+          </button>
+
+          <span
+            className="page-indicator"
+            style={{ fontSize: '1.15rem', fontWeight: 700, margin: '0 12px' }}
+          >
+            Page {page}{corpusData && corpusData.total ? ` / ${Math.max(1, Math.ceil(corpusData.total / perPage))}` : ''}
+          </span>
+
+          <button
+            onClick={() => setPage(p => p + 1)}
+            className="btn-secondary"
+            disabled={corpusData ? (page * perPage >= (corpusData.total || 0)) : false}
+          >
+            Suivant 
+          </button>
+        </div>
       </div>
 
       <div className="status-panel">

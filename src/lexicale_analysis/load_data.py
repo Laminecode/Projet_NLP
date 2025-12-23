@@ -1,15 +1,11 @@
-# src/lexicale_analysis/load_data.py
 from pathlib import Path
 from typing import Dict, Tuple, List
 import json
 import csv
 import os
 
-# In lexicale_analysis/load_data.py
 def load_corpus_texts(base_dir: str, max_docs_per_category=None) -> Dict[str, Dict[str, str]]:
-    """
-    Load with optional limit for testing
-    """
+
     base = Path(base_dir)
     corpora = {}
     
@@ -25,7 +21,6 @@ def load_corpus_texts(base_dir: str, max_docs_per_category=None) -> Dict[str, Di
                 doc_id = p.stem
                 try:
                     text = p.read_text(encoding="utf-8")
-                    # Skip empty or very short documents
                     if len(text.split()) < 50:
                         continue
                     docs[doc_id] = text

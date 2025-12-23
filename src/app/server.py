@@ -1,10 +1,3 @@
-"""
-FastAPI Server pour le projet NLP - Analyse des médias Gaza vs Ukraine
-Ce serveur expose des endpoints REST pour:
-- Afficher les liens de scraping
-- Lancer le scraping et le preprocessing
-- Récupérer les résultats d'analyse lexicale, sémantique et de sentiment
-"""
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,26 +9,22 @@ import json
 from pathlib import Path
 import pandas as pd
 
-# Ajouter le chemin parent pour les imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
-# Imports des modules existants
 from src.scraping.build_corpus import main as build_corpus_main
 from src.preprocessing.clean_corpus import main as clean_corpus_main
 from src.lexicale_analysis.compare_corpora import run_all as run_lexical_analysis
 from src.semantic_analysis.run_semantic import run_semantic
 
-# Initialisation FastAPI
 app = FastAPI(
     title="NLP Media Bias Analysis API",
     description="API pour l'analyse des biais médiatiques Gaza vs Ukraine",
     version="1.0.0"
 )
 
-# Configuration CORS pour permettre les requêtes du frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5174", "http://localhost:3000"],  # Vite et React dev servers
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # Vite et React dev servers
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -66,7 +55,6 @@ ANALYSIS_STATUS = {
 # ==================== Fonctions utilitaires ====================
 
 def read_links_file(filepath: str) -> List[str]:
-    """Lit un fichier de liens et retourne une liste"""
     try:
         if not os.path.exists(filepath):
             return []
@@ -78,7 +66,6 @@ def read_links_file(filepath: str) -> List[str]:
         return []
 
 def read_csv_to_dict(filepath: str) -> List[Dict]:
-    """Lit un CSV et retourne une liste de dictionnaires"""
     try:
         if not os.path.exists(filepath):
             return []
@@ -88,8 +75,38 @@ def read_csv_to_dict(filepath: str) -> List[Dict]:
         print(f"Erreur lecture CSV {filepath}: {e}")
         return []
 
+def read_freq_csv(filepath: str) -> List[Dict]:
+    """Lit un CSV de fréquence et normalise les colonnes 'term' et 'count'"""
+    try:
+        if not os.path.exists(filepath):
+            return []
+        df = pd.read_csv(filepath)
+        records = []
+        # parcourir les lignes et normaliser
+        for _, row in df.head(100).iterrows():
+            term = None
+            count = None
+            for c in ['word', 'term', 'token']:
+                if c in row.index and pd.notna(row[c]):
+                    term = str(row[c])
+                    break
+            for c in ['count', 'frequency', 'freq']:
+                if c in row.index and pd.notna(row[c]):
+                    try:
+                        count = int(row[c])
+                    except Exception:
+                        try:
+                            count = int(float(row[c]))
+                        except Exception:
+                            count = row[c]
+                    break
+            records.append({'term': term or '', 'count': count or 0})
+        return records
+    except Exception as e:
+        print(f"Erreur lecture CSV fréquence {filepath}: {e}")
+        return []
+
 def read_json_file(filepath: str) -> Dict:
-    """Lit un fichier JSON"""
     try:
         if not os.path.exists(filepath):
             return {}
@@ -103,7 +120,6 @@ def read_json_file(filepath: str) -> Dict:
 
 @app.get("/", response_model=StatusResponse)
 async def root():
-    """Endpoint racine - vérification du serveur"""
     return StatusResponse(
         status="success",
         message="API NLP Media Bias Analysis - Serveur opérationnel",
@@ -112,7 +128,6 @@ async def root():
 
 @app.get("/api/links", response_model=LinksResponse)
 async def get_links():
-    """Récupère les liens Gaza et Ukraine depuis les fichiers"""
     gaza_links = read_links_file("data/gaza_links.txt")
     ukraine_links = read_links_file("data/ukraine_links.txt")
     
@@ -125,19 +140,16 @@ async def get_links():
 
 @app.post("/api/links/add")
 async def add_link(corpus: str, url: str):
-    """Ajoute un lien au corpus spécifié"""
     if corpus not in ["gaza", "ukraine"]:
         raise HTTPException(status_code=400, detail="Corpus invalide. Utilisez 'gaza' ou 'ukraine'")
     
     filepath = f"data/{corpus}_links.txt"
     
     try:
-        # Vérifier si le lien existe déjà
         existing_links = read_links_file(filepath)
         if url in existing_links:
             raise HTTPException(status_code=400, detail="Ce lien existe déjà")
         
-        # Ajouter le lien
         with open(filepath, 'a', encoding='utf-8') as f:
             f.write(url + '\n')
         
@@ -149,7 +161,6 @@ async def add_link(corpus: str, url: str):
 
 @app.delete("/api/links/remove")
 async def remove_link(corpus: str, url: str):
-    """Supprime un lien du corpus spécifié"""
     if corpus not in ["gaza", "ukraine"]:
         raise HTTPException(status_code=400, detail="Corpus invalide. Utilisez 'gaza' ou 'ukraine'")
     
@@ -160,10 +171,8 @@ async def remove_link(corpus: str, url: str):
         if url not in links:
             raise HTTPException(status_code=404, detail="Lien non trouvé")
         
-        # Retirer le lien
         links.remove(url)
         
-        # Réécrire le fichier
         with open(filepath, 'w', encoding='utf-8') as f:
             for link in links:
                 f.write(link + '\n')
@@ -176,14 +185,12 @@ async def remove_link(corpus: str, url: str):
 
 @app.get("/api/scraping/status")
 async def get_scraping_status():
-    """Vérifie le statut du scraping"""
     return {
         "status": "success",
         "data": SCRAPING_STATUS
     }
 
 async def run_scraping_task():
-    """Tâche de fond pour le scraping et preprocessing"""
     global SCRAPING_STATUS
     try:
         SCRAPING_STATUS["running"] = True
@@ -208,7 +215,7 @@ async def run_scraping_task():
 
 @app.post("/api/scraping/start")
 async def start_scraping(background_tasks: BackgroundTasks):
-    """Lance le scraping et le preprocessing en arrière-plan"""
+    #Lance le scraping et le preprocessing en arrière-plan
     if SCRAPING_STATUS["running"]:
         raise HTTPException(status_code=400, detail="Le scraping est déjà en cours")
     
@@ -220,8 +227,7 @@ async def start_scraping(background_tasks: BackgroundTasks):
     }
 
 @app.get("/api/corpus/texts")
-async def get_corpus_texts(corpus: str = "gaza", limit: int = 10):
-    """Récupère les textes du corpus"""
+async def get_corpus_texts(corpus: str = "gaza", limit: int = 10, offset: int = 0):
     if corpus not in ["gaza", "ukraine"]:
         raise HTTPException(status_code=400, detail="Corpus invalide")
     
@@ -231,9 +237,12 @@ async def get_corpus_texts(corpus: str = "gaza", limit: int = 10):
         return {"status": "success", "data": {"texts": [], "total": 0}}
     
     files = [f for f in os.listdir(corpus_dir) if f.endswith('.txt') and f != '_stats.json']
+    files = sorted(files)
+    if offset < 0:
+        offset = 0
     texts = []
     
-    for i, filename in enumerate(files[:limit]):
+    for i, filename in enumerate(files[offset: offset + limit]):
         try:
             with open(os.path.join(corpus_dir, filename), 'r', encoding='utf-8') as f:
                 content = f.read()
@@ -251,12 +260,14 @@ async def get_corpus_texts(corpus: str = "gaza", limit: int = 10):
         "data": {
             "texts": texts,
             "total": len(files),
-            "showing": len(texts)
+            "showing": len(texts),
+            "offset": offset,
+            "limit": limit
         }
     }
 
 async def run_lexical_analysis_task():
-    """Tâche de fond pour l'analyse lexicale"""
+    #Tâche de fond pour l'analyse lexicale
     global ANALYSIS_STATUS
     try:
         ANALYSIS_STATUS["lexical"]["running"] = True
@@ -271,7 +282,6 @@ async def run_lexical_analysis_task():
 
 @app.post("/api/analysis/lexical/start")
 async def start_lexical_analysis(background_tasks: BackgroundTasks):
-    """Lance l'analyse lexicale"""
     if ANALYSIS_STATUS["lexical"]["running"]:
         raise HTTPException(status_code=400, detail="Analyse lexicale déjà en cours")
     
@@ -280,15 +290,10 @@ async def start_lexical_analysis(background_tasks: BackgroundTasks):
 
 @app.get("/api/analysis/lexical/results")
 async def get_lexical_results():
-    """Récupère les résultats de l'analyse lexicale"""
-    
-    # Fonction pour lire et nettoyer les données de fréquence
     def read_freq_csv(filepath):
         data = read_csv_to_dict(filepath)
-        # Vérifier et corriger les noms de colonnes
         cleaned_data = []
         for item in data:
-            # Gérer différents noms de colonnes possibles
             term = item.get('word') or item.get('term') or item.get('token') or ''
             count = item.get('count') or item.get('frequency') or item.get('freq') or 0
             cleaned_data.append({"term": term, "count": count})
@@ -300,16 +305,71 @@ async def get_lexical_results():
         "ukraine_wordfreq": read_freq_csv("results/statistics/ukraine_wordfreq.csv"),
         "logodds_top": read_csv_to_dict("results/statistics/gaza_vs_ukraine_logodds_top200.csv"),
         "logodds_bottom": read_csv_to_dict("results/statistics/gaza_vs_ukraine_logodds_bottom200.csv"),
+        "logodds_full": read_csv_to_dict("results/statistics/gaza_vs_ukraine_logodds_full.csv"),
         "tfidf_gaza": read_csv_to_dict("results/statistics/tfidf_gaza.csv"),
         "tfidf_ukraine": read_csv_to_dict("results/statistics/tfidf_ukraine.csv"),
         "article_stats": read_csv_to_dict("results/statistics/article_stats.csv")
     }
-    
+
     return {"status": "success", "data": results}
+
+
+@app.get("/api/analysis/lexical/bigrams")
+async def get_bigrams(corpus: str = "gaza"):
+    """Retourne les bigrams pour le corpus demandé (gaza|ukraine)"""
+    if corpus not in ["gaza", "ukraine"]:
+        raise HTTPException(status_code=400, detail="Corpus invalide. Utilisez 'gaza' ou 'ukraine'")
+    path = f"results/statistics/{corpus}_bigrams.csv"
+    data = read_csv_to_dict(path)
+    return {"status": "success", "data": data}
+
+
+@app.get("/api/analysis/lexical/trigrams")
+async def get_trigrams(corpus: str = "gaza"):
+    """Retourne les trigrams pour le corpus demandé (gaza|ukraine)"""
+    if corpus not in ["gaza", "ukraine"]:
+        raise HTTPException(status_code=400, detail="Corpus invalide. Utilisez 'gaza' ou 'ukraine'")
+    path = f"results/statistics/{corpus}_trigrams.csv"
+    data = read_csv_to_dict(path)
+    return {"status": "success", "data": data}
+
+
+@app.get("/api/analysis/lexical/tfidf")
+async def get_tfidf(corpus: str = "gaza"):
+    """Retourne le TF-IDF pour le corpus demandé (tfidf_gaza.csv / tfidf_ukraine.csv)"""
+    if corpus not in ["gaza", "ukraine"]:
+        raise HTTPException(status_code=400, detail="Corpus invalide. Utilisez 'gaza' ou 'ukraine'")
+    path = f"results/statistics/tfidf_{corpus}.csv"
+    data = read_csv_to_dict(path)
+    return {"status": "success", "data": data}
+
+
+@app.get("/api/analysis/lexical/wordfreq")
+async def get_wordfreq(corpus: str = "gaza"):
+    """Retourne la fréquence des mots pour le corpus demandé"""
+    if corpus not in ["gaza", "ukraine"]:
+        raise HTTPException(status_code=400, detail="Corpus invalide. Utilisez 'gaza' ou 'ukraine'")
+    path = f"results/statistics/{corpus}_wordfreq.csv"
+    data = read_freq_csv(path)
+    return {"status": "success", "data": data}
+
+
+@app.get("/api/analysis/lexical/logodds")
+async def get_logodds(variant: str = "top200"):
+    """Retourne les résultats log-odds. Paramètre 'variant' : top200|bottom200|full"""
+    mapping = {
+        "top200": "results/statistics/gaza_vs_ukraine_logodds_top200.csv",
+        "bottom200": "results/statistics/gaza_vs_ukraine_logodds_bottom200.csv",
+        "full": "results/statistics/gaza_vs_ukraine_logodds_full.csv"
+    }
+    if variant not in mapping:
+        raise HTTPException(status_code=400, detail="Variant invalide. Choisir: top200, bottom200, full")
+    path = mapping[variant]
+    data = read_csv_to_dict(path)
+    return {"status": "success", "data": data}
 
 @app.get("/api/analysis/lexical/actor/{actor}")
 async def get_actor_analysis(actor: str, corpus: str = "gaza"):
-    """Récupère l'analyse d'un acteur spécifique"""
     context = read_csv_to_dict(f"results/statistics/{corpus}_actor_{actor}_context.csv")
     adj = read_csv_to_dict(f"results/statistics/{corpus}_actor_{actor}_ADJ.csv")
     verb = read_csv_to_dict(f"results/statistics/{corpus}_actor_{actor}_VERB.csv")
@@ -326,7 +386,6 @@ async def get_actor_analysis(actor: str, corpus: str = "gaza"):
     }
 
 async def run_semantic_analysis_task():
-    """Tâche de fond pour l'analyse sémantique"""
     global ANALYSIS_STATUS
     try:
         ANALYSIS_STATUS["semantic"]["running"] = True
@@ -344,7 +403,6 @@ async def run_semantic_analysis_task():
 
 @app.post("/api/analysis/semantic/start")
 async def start_semantic_analysis(background_tasks: BackgroundTasks):
-    """Lance l'analyse sémantique"""
     if ANALYSIS_STATUS["semantic"]["running"]:
         raise HTTPException(status_code=400, detail="Analyse sémantique déjà en cours")
     
@@ -353,14 +411,11 @@ async def start_semantic_analysis(background_tasks: BackgroundTasks):
 
 @app.get("/api/analysis/semantic/results")
 async def get_semantic_results(corpus: str = "gaza"):
-    """Récupère les résultats de l'analyse sémantique"""
     if corpus not in ["gaza", "ukraine"]:
         raise HTTPException(status_code=400, detail="Corpus invalide. Utilisez 'gaza' ou 'ukraine'")
-    # Préparer les chemins et structures de retour
     keywords = ["attack", "strike", "civilian", "resistance", "occupation"]
     concordances = {}
 
-    # Lire les concordances par mot-clé (fichiers CSV: {corpus}_concordance_{keyword}.csv)
     for kw in keywords:
         path = f"results/semantic/{corpus}_concordance_{kw}.csv"
         rows = read_csv_to_dict(path)
@@ -399,7 +454,6 @@ async def get_semantic_results(corpus: str = "gaza"):
         if isinstance(keywords_str, str):
             words = [w.strip() for w in keywords_str.split(',') if w.strip()]
             for w in words:
-                # cluster_id peut être non-numérique, essayer de le caster
                 try:
                     cid = int(cluster_id)
                 except Exception:
@@ -417,7 +471,6 @@ async def get_semantic_results(corpus: str = "gaza"):
 
 @app.get("/api/analysis/sentiment/results")
 async def get_sentiment_results(corpus: str = "gaza"):
-    """Récupère les résultats de l'analyse de sentiment"""
     if corpus not in ["gaza", "ukraine"]:
         raise HTTPException(status_code=400, detail="Corpus invalide. Utilisez 'gaza' ou 'ukraine'")
     
@@ -425,7 +478,6 @@ async def get_sentiment_results(corpus: str = "gaza"):
     actor_file = f"results/sentiment/{corpus}_actor_sentiment.csv"
     
     victims = read_csv_to_dict(victims_file)
-    # Pour les acteurs, on agrège par nom d'acteur pour obtenir une moyenne et un nombre d'occurrences
     actors = []
     try:
         if os.path.exists(actor_file):
@@ -436,7 +488,6 @@ async def get_sentiment_results(corpus: str = "gaza"):
                     occurrences=pd.NamedAgg(column='actor', aggfunc='count')
                 ).reset_index()
 
-                # Construire la liste d'acteurs pour le frontend
                 actors = []
                 for _, row in grouped.iterrows():
                     actors.append({
@@ -462,13 +513,11 @@ async def get_sentiment_results(corpus: str = "gaza"):
     }
 
 async def run_sentiment_analysis_task():
-    """Tâche de fond pour l'analyse de sentiment"""
     global ANALYSIS_STATUS
     try:
         ANALYSIS_STATUS["sentiment"]["running"] = True
         print("[BACKEND] Démarrage analyse de sentiment...")
         
-        # Import dynamique pour éviter les erreurs si le module n'existe pas
         try:
             from src.sentiment.run_sentiment import run_sentiment
             run_sentiment(data_base="data/processed_clean")
@@ -488,7 +537,6 @@ async def run_sentiment_analysis_task():
 
 @app.post("/api/analysis/sentiment/start")
 async def start_sentiment_analysis(background_tasks: BackgroundTasks):
-    """Lance l'analyse de sentiment"""
     if ANALYSIS_STATUS["sentiment"]["running"]:
         raise HTTPException(status_code=400, detail="Analyse de sentiment déjà en cours")
     
@@ -497,7 +545,6 @@ async def start_sentiment_analysis(background_tasks: BackgroundTasks):
 
 @app.get("/api/analysis/status")
 async def get_analysis_status():
-    """Récupère le statut de toutes les analyses"""
     return {
         "status": "success",
         "data": ANALYSIS_STATUS

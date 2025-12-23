@@ -184,6 +184,7 @@ def plot_distinctive_terms(csv_file, title, out_png, top_n=20):
 
 # ------------------ MAIN ------------------
 def main():
+<<<<<<< HEAD
     # plot_word_frequencies()
     # plot_tfidf()
     # plot_logodds()
@@ -193,6 +194,15 @@ def main():
         "Top Distinctive Terms: Gaza vs Ukraine",
         "results/figures/distinctive_terms_gaza_ukraine.png"
     )
+=======
+    plot_word_frequencies()
+    plot_tfidf()
+    plot_logodds()
+
+    # Actors 
+    for actor in ["israel", "palestin", "ukraine", "russia"]:
+        plot_actor_context(actor)
+>>>>>>> 1f3b24556b639fd39149f7148eadb24c7bc7adf1
 
     # # Actors (adapt to your project)
     # for actor in ["israel", "palestin", "ukraine", "russia"]:

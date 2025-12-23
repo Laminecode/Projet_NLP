@@ -1,4 +1,3 @@
-# src/semantic_analysis/run_semantic.py
 
 import os
 from pathlib import Path

@@ -16,7 +16,6 @@ def normalize(text):
 def hash_text(text):
     return hashlib.sha1(text.encode("utf-8")).hexdigest()
 
-# In scraping/build_corpus.py
 def process_category(cat):
     raw_dir = os.path.join(RAW_BASE, cat)
     out_dir = os.path.join(OUT_BASE, cat)
@@ -43,7 +42,6 @@ def process_category(cat):
 
             text = normalize(obj.get("content", ""))
             
-            # Validate text quality
             if len(text.split()) < 100:  # Minimum word count
                 print(f"[WARNING] Skipping short article: {fpath}")
                 errors += 1

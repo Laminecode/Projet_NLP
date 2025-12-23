@@ -58,9 +58,15 @@ const SentimentPage: React.FC = () => {
   };
 
   const getSentimentLabel = (score: number) => {
-    if (score >= 0.05) return '😊 Positif';
-    if (score <= -0.05) return '😞 Négatif';
-    return '😐 Neutre';
+    if (score >= 0.05) return ' Positif';
+    if (score <= -0.05) return ' Négatif';
+    return ' Neutre';
+  };
+
+  const getSentimentStyle = (score: number) => {
+    if (score >= 0.05) return { color: 'green', fontWeight: 600 } as React.CSSProperties;
+    if (score <= -0.05) return { color: 'red', fontWeight: 600 } as React.CSSProperties;
+    return { color: '#666' } as React.CSSProperties;
   };
 
   const extractVictimScore = (item: any) => {
@@ -77,7 +83,7 @@ const SentimentPage: React.FC = () => {
 
   return (
     <div className="page">
-      <h1>😊 Analyse de Sentiment</h1>
+      <h1>Analyse de Sentiment</h1>
       
       <div className="control-panel">
         <button 
@@ -135,7 +141,11 @@ const SentimentPage: React.FC = () => {
                         <td className={getSentimentColor(extractVictimScore(item))}>
                           {extractVictimScore(item).toFixed(3)}
                         </td>
-                        <td>{getSentimentLabel(extractVictimScore(item))}</td>
+                        <td>
+                          <span style={getSentimentStyle(extractVictimScore(item))}>
+                            {getSentimentLabel(extractVictimScore(item))}
+                          </span>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -170,7 +180,11 @@ const SentimentPage: React.FC = () => {
                         <td className={getSentimentColor(extractActorScore(item))}>
                           {extractActorScore(item).toFixed(3)}
                         </td>
-                        <td>{getSentimentLabel(extractActorScore(item))}</td>
+                        <td>
+                          <span style={getSentimentStyle(extractActorScore(item))}>
+                            {getSentimentLabel(extractActorScore(item))}
+                          </span>
+                        </td>
                         <td>{item.count || item.occurrences || 1}</td>
                       </tr>
                     ))}

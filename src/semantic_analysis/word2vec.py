@@ -1,4 +1,3 @@
-# src/semantic_analysis/word2vec_model.py
 
 from gensim.models import Word2Vec
 from pathlib import Path

@@ -3,11 +3,16 @@ data/raw/
 data/raw_text/
 data/test_data/ 
 results/
+<<<<<<< HEAD
 src\lexicale_analysis\__pycache__\
 src\preprocessing\__pycache__\
 src\scraping\__pycache__\
 src\semantic_analysis\__pycache__\
 src\sentiment_analysis\__pycache__\
+=======
+report.md
+
+>>>>>>> 1f3b24556b639fd39149f7148eadb24c7bc7adf1
 
 # ==================== Python ====================
 # Bytecode

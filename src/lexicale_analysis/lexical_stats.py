@@ -7,7 +7,6 @@ import csv
 import os
 import numpy as np
 
-# Try to import spaCy for POS/dependency
 USE_SPACY = False
 try:
     import spacy
@@ -15,7 +14,6 @@ try:
     doc = nlp(text)
 except Exception:
     USE_SPACY = False
-    # fallback to NLTK
     import nltk
     try:
         nltk.data.find('tokenizers/punkt')
@@ -71,17 +69,14 @@ def save_article_stats(all_stats: Dict[str, Dict[str, Dict]], out_csv: str):
 # -----------------------
 from collections import Counter
 def actor_pos_contexts(docs: Dict[str, str], actor_lemmas:List[str], window:int=5, topk:int=50):
-    """
-    Return counts of ADJ, VERB, NOUN lemmas appearing in context of actor mentions.
-    """
+
     results = {"ADJ": Counter(), "VERB": Counter(), "NOUN": Counter()}
     if USE_SPACY:
         for text in docs.values():
             doc = nlp(text)
             for token in doc:
                 if token.lemma_.lower() in actor_lemmas:
-                    # collect dependency modifiers (amod) and neighbors within window
-                    # neighbors
+
                     i = token.i
                     start = max(0, i-window); end = min(len(doc), i+window+1)
                     for t in doc[start:end]:
@@ -92,7 +87,6 @@ def actor_pos_contexts(docs: Dict[str, str], actor_lemmas:List[str], window:int=
                         elif t.pos_ == "NOUN":
                             results["NOUN"][t.lemma_.lower()] += 1
     else:
-        # fallback: simple POS tag via nltk
         from nltk import word_tokenize, pos_tag
         for text in docs.values():
             tokens = word_tokenize(text)
@@ -105,7 +99,6 @@ def actor_pos_contexts(docs: Dict[str, str], actor_lemmas:List[str], window:int=
                         if t.startswith("JJ"): results["ADJ"][w.lower()] += 1
                         elif t.startswith("VB"): results["VERB"][w.lower()] += 1
                         elif t.startswith("NN"): results["NOUN"][w.lower()] += 1
-    # return topk lists
     return {k: v.most_common(topk) for k,v in results.items()}
 
 

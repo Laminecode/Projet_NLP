@@ -7,14 +7,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"
 from pipeline import preprocess_to_string
 
 def process_category(cat, raw_base="data/raw_text", out_base="data/processed_clean"):
-    """
-    Process all .txt files in a category directory.
-    
-    Args:
-        cat: Category name (e.g., "gaza", "ukraine")
-        raw_base: Base directory for raw text
-        out_base: Base directory for output
-    """
     raw_dir = os.path.join(raw_base, cat)
     out_dir = os.path.join(out_base, cat)
     
@@ -58,7 +50,6 @@ def process_category(cat, raw_base="data/raw_text", out_base="data/processed_cle
 
 
 def main():
-    """Process all text categories."""
     categories = ["gaza", "ukraine"]
     
     for cat in categories:
