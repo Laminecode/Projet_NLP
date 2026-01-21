@@ -31,7 +31,7 @@ def run_sentiment(data_base):
         print(f"[OK] Sentiment done for {cat}")
 
 if __name__ == "__main__":
-    run_sentiment("data/processed_clean")
+    run_sentiment("data/raw_text")
     from figures import (
         plot_actor_boxplot,
         plot_victim_histogram,
