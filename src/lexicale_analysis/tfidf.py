@@ -30,3 +30,32 @@ def save_tfidf_terms(terms_scores: List[Tuple[str, float]], out_csv: str):
         writer = csv.writer(f)
         writer.writerow(["term", "score"])
         writer.writerows(terms_scores)
+
+
+# def compute_tfidf_simple(docs: Dict[str, str]):
+   
+#     doc_ids = list(docs.keys())
+#     texts = [docs[_id] for _id in doc_ids]
+#     tokenized = [[w.lower() for w in txt.split() if w] for txt in texts]
+#     vocab_set = set()
+#     for toks in tokenized:
+#         vocab_set.update(toks)
+#     vocab = sorted(vocab_set)
+#     term_idx = {t: i for i, t in enumerate(vocab)}
+#     N = len(doc_ids)
+#     V = len(vocab)
+#     tf = np.zeros((N, V), dtype=float)
+#     for i, toks in enumerate(tokenized):
+#         for t in toks:
+#             j = term_idx.get(t)
+#             if j is not None:
+#                 tf[i, j] += 1.0
+
+#     doc_lengths = tf.sum(axis=1, keepdims=True)
+#     nonzero = doc_lengths.squeeze() > 0
+#     tf[nonzero, :] = tf[nonzero, :] / doc_lengths[nonzero]
+#     df = np.count_nonzero(tf > 0, axis=0)
+#     idf = np.log((N + 1) / (df + 1)) + 1.0
+#     tfidf = tf * idf
+
+#     return tfidf, vocab, doc_ids

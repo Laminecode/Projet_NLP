@@ -4,15 +4,6 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
 def get_custom_stopwords(language='english'):
-    """
-    Get standard stopwords plus domain-specific stopwords for news/current events.
-    
-    Args:
-        language: Language for stopwords
-        
-    Returns:
-        Set of stopwords to filter
-    """
     stop_words = set(stopwords.words(language))
 
     domain_stopwords = {

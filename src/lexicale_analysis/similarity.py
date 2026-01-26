@@ -21,9 +21,7 @@ def save_similarity_matrix(sim: np.ndarray, doc_ids: List[str], out_csv: str):
         for i, row in enumerate(sim):
             writer.writerow([doc_ids[i]] + [float(x) for x in row])
 
-# ----------------------------
-# Cooccurrence
-# ----------------------------
+
 from collections import defaultdict, Counter
 def build_cooccurrence(docs: Dict[str, str], vocab_set:set=None, window:int=5):
     co = defaultdict(int)
@@ -44,10 +42,6 @@ def build_cooccurrence(docs: Dict[str, str], vocab_set:set=None, window:int=5):
 
 #Réseau de cooccurrences pour acteurs clés
 def build_actor_cooccurrence(docs: Dict[str, str], actor_lemmas: List[str], window:int=5):
-    """
-    Build cooccurrence counts for given actor lemmas.
-    Returns (co_counts: dict[(actor_lemma, context_word)]->count)
-    """
     co = defaultdict(int)
     for txt in docs.values():
         tokens = [t for t in txt.split() if t]
